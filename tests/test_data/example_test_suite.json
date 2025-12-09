@@ -1,0 +1,70 @@
+{
+  "name": "Basic Voice Commands",
+  "description": "Test suite for basic voice command interpretation",
+  "tests": [
+    {
+      "id": "test_001",
+      "voice_command": "Turn on the living room lights",
+      "description": "Simple command to turn on lights in a specific room",
+      "tags": ["smart_home", "lights", "basic"],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_002",
+      "voice_command": "Set the thermostat to 72 degrees",
+      "description": "Command to adjust temperature",
+      "tags": ["smart_home", "thermostat", "basic"],
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_003",
+      "voice_command": "Play my workout playlist and turn up the volume",
+      "description": "Multi-action command requiring multiple tool calls",
+      "tags": ["music", "multi_action"],
+      "expected_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "playlist": "workout"
+          }
+        },
+        {
+          "name": "adjust_volume",
+          "arguments": {
+            "action": "increase"
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_004",
+      "voice_command": "What's the weather like today?",
+      "description": "Information query requiring weather API call",
+      "tags": ["weather", "query"],
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "timeframe": "today"
+          }
+        }
+      ]
+    }
+  ]
+}
