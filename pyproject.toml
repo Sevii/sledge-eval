@@ -1,0 +1,63 @@
+[project]
+name = "sledge-eval"
+version = "0.1.0"
+description = "Evaluation framework for small models' ability to interpret voice commands into tool calls"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=0.1.0",
+    "langchain-core>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+]
+markers = [
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "black>=24.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
