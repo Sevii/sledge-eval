@@ -1,125 +1,36 @@
-"""Ministral-specific evaluator for tool calling with llama.cpp."""
+"""Server-based evaluator that uses llama-server HTTP API."""
 
 import json
-from pathlib import Path
+import requests
 from typing import Any, Dict, List, Optional
-
-from llama_cpp import Llama
 
 from .evaluator import EvaluationResult, Evaluator, ToolCall, VoiceCommandTest
 
 
-class MinistralEvaluator(Evaluator):
-    """Evaluator using Ministral models via llama-cpp-python for tool calling."""
+class ServerEvaluator(Evaluator):
+    """Evaluator that uses llama-server HTTP API for tool calling."""
 
     def __init__(
         self,
-        model_path: str,
-        n_ctx: int = 4096,
-        n_gpu_layers: int = -1,
-        verbose: bool = False,
+        server_url: str = "http://localhost:8080",
         available_tools: Optional[List[Dict[str, Any]]] = None,
-        mmproj_path: Optional[str] = None,
+        timeout: int = 120,
+        debug: bool = False,
     ):
         """
-        Initialize the Ministral evaluator.
+        Initialize the server evaluator.
 
         Args:
-            model_path: Path to the Ministral GGUF model file
-            n_ctx: Context window size (default 4096)
-            n_gpu_layers: Number of layers to offload to GPU (-1 for all, 0 for CPU only)
-            verbose: Enable verbose output from llama.cpp
+            server_url: URL of the llama-server instance
             available_tools: List of tool definitions in OpenAI format
-            mmproj_path: Path to multimodal projection file for vision capabilities
+            timeout: Request timeout in seconds
+            debug: Enable debug logging of requests and responses
         """
-        # Handle multimodal model detection
-        model_path_obj = Path(model_path)
-        
-        # If the provided path is a mmproj file, try to find the base model
-        if "mmproj" in model_path_obj.name:
-            # Extract base model name patterns to look for
-            base_patterns = [
-                model_path_obj.name.replace("-BF16-mmproj.gguf", "-Q4_K_M.gguf"),
-                model_path_obj.name.replace("-BF16-mmproj.gguf", ".gguf"),
-                model_path_obj.name.replace("-mmproj.gguf", ".gguf"),
-            ]
-            
-            actual_model_path = None
-            for pattern in base_patterns:
-                base_model_path = model_path_obj.parent / pattern
-                if base_model_path.exists():
-                    actual_model_path = str(base_model_path)
-                    mmproj_path = model_path
-                    break
-            
-            if not actual_model_path:
-                # Try to find any similar model file in the same directory
-                model_prefix = model_path_obj.stem.split('-')[0]
-                similar_files = list(model_path_obj.parent.glob(f"*{model_prefix}*"))
-                text_models = [f for f in similar_files if "mmproj" not in f.name and f.suffix == ".gguf"]
-                
-                if text_models:
-                    # Sort by file size (larger is usually better quality)
-                    text_models.sort(key=lambda x: x.stat().st_size, reverse=True)
-                    actual_model_path = str(text_models[0])
-                    mmproj_path = model_path
-                else:
-                    raise ValueError(f"Could not find base model for mmproj file: {model_path}")
-        else:
-            actual_model_path = model_path
-        
-        # Initialize Llama with appropriate parameters
-        llama_kwargs = {
-            "model_path": actual_model_path,
-            "n_ctx": n_ctx,
-            "n_gpu_layers": n_gpu_layers,
-            "verbose": verbose,
-        }
-        
-        # Validate that the base model file exists and is readable
-        if not Path(actual_model_path).exists():
-            raise FileNotFoundError(f"Model file not found: {actual_model_path}")
-        
-        # Add multimodal projection if available
-        if mmproj_path and Path(mmproj_path).exists():
-            llama_kwargs["clip_model_path"] = mmproj_path
-        
-        print(f"Loading model: {actual_model_path}")
-        if mmproj_path:
-            print(f"Using multimodal projection: {mmproj_path}")
-        
-        try:
-            self.llm = Llama(**llama_kwargs)
-        except Exception as e:
-            # If multimodal initialization fails, try without mmproj
-            if mmproj_path and "clip_model_path" in llama_kwargs:
-                print(f"Warning: Failed to initialize with multimodal projection, falling back to text-only: {e}")
-                llama_kwargs.pop("clip_model_path", None)
-                try:
-                    print(f"Retrying with text-only model...")
-                    self.llm = Llama(**llama_kwargs)
-                    mmproj_path = None  # Clear mmproj since it failed
-                except Exception as e2:
-                    print(f"Text-only fallback also failed: {e2}")
-                    # Try with minimal parameters
-                    minimal_kwargs = {
-                        "model_path": actual_model_path,
-                        "verbose": True,
-                        "n_ctx": 2048,  # Smaller context
-                        "n_gpu_layers": 0,  # CPU only
-                    }
-                    try:
-                        print("Trying with minimal CPU-only configuration...")
-                        self.llm = Llama(**minimal_kwargs)
-                        mmproj_path = None
-                    except Exception as e3:
-                        raise Exception(f"Failed to load model with all configurations. Multimodal error: {e}, Text-only error: {e2}, Minimal error: {e3}")
-            else:
-                raise e
-        
+        self.server_url = server_url.rstrip('/')
         self.available_tools = available_tools or self._get_default_tools()
-        self.has_multimodal = mmproj_path is not None
-        super().__init__(model_client=self.llm)
+        self.timeout = timeout
+        self.debug = debug
+        super().__init__(model_client=None)
 
     def _get_default_tools(self) -> List[Dict[str, Any]]:
         """
@@ -238,9 +149,50 @@ class MinistralEvaluator(Evaluator):
             },
         ]
 
+    def _check_server_health(self) -> bool:
+        """
+        Check if the llama-server is healthy and responding.
+
+        Returns:
+            True if server is healthy, False otherwise
+        """
+        # Try multiple endpoints that llama-server might expose
+        endpoints = [
+            "/health",
+            "/v1/models", 
+            "/",
+            "/models",
+        ]
+        
+        for endpoint in endpoints:
+            try:
+                url = f"{self.server_url}{endpoint}"
+                if self.debug:
+                    print(f"🐛 DEBUG: Health check trying: {url}")
+                else:
+                    print(f"   Trying: {url}")
+                response = requests.get(url, timeout=5)
+                if self.debug:
+                    print(f"🐛 DEBUG: Health check response: {response.status_code}")
+                else:
+                    print(f"   Response: {response.status_code}")
+                if response.status_code in [200, 404]:  # 404 is OK, server is responding
+                    return True
+            except requests.exceptions.ConnectionError as e:
+                if "refused" in str(e).lower():
+                    print(f"   Connection refused to {url}")
+                else:
+                    print(f"   Connection error to {url}: {e}")
+            except requests.exceptions.Timeout:
+                print(f"   Timeout connecting to {url}")
+            except requests.exceptions.RequestException as e:
+                print(f"   Error connecting to {url}: {e}")
+        
+        return False
+
     def evaluate_test(self, test: VoiceCommandTest) -> EvaluationResult:
         """
-        Evaluate a single test case using Ministral.
+        Evaluate a single test case using the llama-server.
 
         Args:
             test: The test case to evaluate
@@ -249,34 +201,92 @@ class MinistralEvaluator(Evaluator):
             EvaluationResult with pass/fail and details
         """
         try:
-            # Build messages for the model
-            messages = [
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant that interprets voice commands and calls appropriate functions.",
-                },
-                {"role": "user", "content": test.voice_command},
-            ]
+            # Check server health first
+            if not self._check_server_health():
+                raise Exception(f"llama-server is not responding at {self.server_url}")
 
-            # First pass: get model response with tools
-            response = self.llm.create_chat_completion(
-                messages=messages, tools=self.available_tools, tool_choice="auto"
+            if self.debug:
+                print("🐛 DEBUG: Server health check passed, building request...")
+
+            # Build request payload
+            payload = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant that interprets voice commands and calls appropriate functions.",
+                    },
+                    {"role": "user", "content": test.voice_command},
+                ],
+                "tools": self.available_tools,
+                "tool_choice": "auto",
+                "temperature": 0.1,
+                "max_tokens": 512,
+            }
+
+            # Debug logging for request
+            if self.debug:
+                print("\n" + "=" * 60)
+                print("🐛 DEBUG: REQUEST TO LLM SERVER")
+                print("=" * 60)
+                print(f"URL: {self.server_url}/v1/chat/completions")
+                print(f"Method: POST")
+                print(f"Headers: {{'Content-Type': 'application/json'}}")
+                print(f"Timeout: {self.timeout}s")
+                print("\nRequest Payload:")
+                print(json.dumps(payload, indent=2, ensure_ascii=False))
+                print("=" * 60)
+
+            # Make request to chat completions endpoint
+            response = requests.post(
+                f"{self.server_url}/v1/chat/completions",
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=self.timeout,
             )
 
+            # Debug logging for response
+            if self.debug:
+                print("\n" + "=" * 60)
+                print("🐛 DEBUG: RESPONSE FROM LLM SERVER")
+                print("=" * 60)
+                print(f"Status Code: {response.status_code}")
+                print(f"Headers: {dict(response.headers)}")
+                print("\nResponse Body:")
+                try:
+                    response_json = response.json()
+                    print(json.dumps(response_json, indent=2, ensure_ascii=False))
+                except json.JSONDecodeError:
+                    print(f"Raw response text: {response.text}")
+                print("=" * 60 + "\n")
+
+            if response.status_code != 200:
+                raise Exception(f"Server returned {response.status_code}: {response.text}")
+
+            response_data = response.json()
             predicted_tool_calls = []
-            choice = response["choices"][0]
 
-            # Check if model made tool calls
-            if choice["finish_reason"] == "tool_calls":
-                tool_calls = choice["message"]["tool_calls"]
+            # Parse tool calls from response
+            if "choices" in response_data and len(response_data["choices"]) > 0:
+                choice = response_data["choices"][0]
+                message = choice.get("message", {})
+                
+                # Check for tool calls
+                if "tool_calls" in message:
+                    for tool_call in message["tool_calls"]:
+                        if tool_call.get("type") == "function":
+                            function = tool_call.get("function", {})
+                            function_name = function.get("name", "")
+                            
+                            # Parse arguments
+                            arguments_str = function.get("arguments", "{}")
+                            try:
+                                arguments = json.loads(arguments_str)
+                            except json.JSONDecodeError:
+                                arguments = {}
 
-                for tool_call in tool_calls:
-                    function_name = tool_call["function"]["name"]
-                    arguments = json.loads(tool_call["function"]["arguments"])
-
-                    predicted_tool_calls.append(
-                        ToolCall(name=function_name, arguments=arguments)
-                    )
+                            predicted_tool_calls.append(
+                                ToolCall(name=function_name, arguments=arguments)
+                            )
 
             # Compare predicted vs expected tool calls
             passed = self._compare_tool_calls(

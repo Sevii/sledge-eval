@@ -1,3 +1,8 @@
+/Users/nicholassledgianowski/Library/Caches/llama.cpp/mistralai_Ministral-3-3B-Reasoning-2512-GGUF_Ministral-3-3B-Reasoning-2512-BF16-mmproj.gguf
+
+
+
+
 # Sledge Eval
 
 Evaluation framework for testing small language models' ability to interpret voice commands and convert them into structured tool calls.

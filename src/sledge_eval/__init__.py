@@ -8,6 +8,7 @@ from .evaluator import (
     VoiceCommandTest,
 )
 from .ministral_evaluator import MinistralEvaluator
+from .server_evaluator import ServerEvaluator
 
 __version__ = "0.1.0"
 
@@ -15,6 +16,7 @@ __all__ = [
     "EvaluationResult",
     "Evaluator",
     "MinistralEvaluator",
+    "ServerEvaluator",
     "TestSuite",
     "ToolCall",
     "VoiceCommandTest",
