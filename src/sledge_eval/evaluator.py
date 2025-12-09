@@ -50,6 +50,9 @@ class EvaluationResult(BaseModel):
     predicted_tool_calls: List[ToolCall]
     expected_tool_calls: List[ToolCall]
     error: Optional[str] = None
+    evaluation_time_ms: Optional[float] = Field(
+        None, description="Time taken for evaluation in milliseconds"
+    )
 
 
 class Evaluator:

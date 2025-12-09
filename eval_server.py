@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import time
 from pathlib import Path
 
 from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall
@@ -84,6 +85,10 @@ def run_single_test(server_url: str, debug: bool = False):
     print("=" * 80)
     print(f"Test ID: {result.test_id}")
     print(f"Status: {'PASS ✓' if result.passed else 'FAIL ✗'}")
+    
+    if result.evaluation_time_ms:
+        print(f"Evaluation Time: {result.evaluation_time_ms:.1f}ms")
+    
     print(f"\nExpected Tool Calls:")
     for tc in result.expected_tool_calls:
         print(f"  - {tc.name}({tc.arguments})")
@@ -96,6 +101,198 @@ def run_single_test(server_url: str, debug: bool = False):
 
     print("=" * 80)
     return result.passed
+
+
+def run_all_tests(server_url: str, test_file: str = None, debug: bool = False):
+    """Run all test types: single test, test suite, and custom tools."""
+    print("=" * 80)
+    print("ALL TESTS EVALUATION (Server)")
+    print("=" * 80)
+    
+    all_results = []
+    total_start_time = time.time()
+    
+    # Initialize the evaluator
+    print(f"\nConnecting to llama-server at: {server_url}")
+    if debug:
+        print("🐛 Debug mode enabled")
+    
+    # Check server health once
+    evaluator = ServerEvaluator(server_url=server_url, debug=debug)
+    if not evaluator._check_server_health():
+        print("❌ Server is not responding. Make sure llama-server is running.")
+        print(f"   Base URL: {server_url}")
+        
+        # Check if anything is listening on the port
+        import subprocess
+        try:
+            port = server_url.split(':')[-1]
+            result = subprocess.run(['lsof', '-i', f':{port}'], capture_output=True, text=True)
+            if result.returncode == 0:
+                print(f"   Something is listening on port {port}:")
+                print("   " + result.stdout.replace('\n', '\n   '))
+            else:
+                print(f"   Nothing is listening on port {port}")
+        except Exception:
+            pass
+            
+        print("   Possible issues:")
+        print("   - Server not started yet")
+        print("   - Wrong port number")  
+        print("   - Server crashed during startup")
+        print("   - Firewall blocking connection")
+        print("   - Server doesn't support expected API endpoints")
+        return False
+    
+    print("✅ Server is responding!")
+    
+    print("\n" + "=" * 80)
+    print("RUNNING ALL TESTS")
+    print("=" * 80)
+    
+    # 1. Run single test
+    print(f"\n📋 SECTION 1: Single Test")
+    print("-" * 40)
+    
+    single_test = VoiceCommandTest(
+        id="single_001",
+        voice_command="Turn on the living room lights",
+        expected_tool_calls=[
+            ToolCall(
+                name="control_lights",
+                arguments={"room": "living room", "action": "turn_on"},
+            )
+        ],
+        description="Simple light control command",
+        tags=["lights", "smart_home"],
+    )
+    
+    print(f"🧪 Test: {single_test.id}")
+    print(f"   Command: '{single_test.voice_command}'")
+    result = evaluator.evaluate_test(single_test)
+    all_results.append(result)
+    
+    status = "PASS ✓" if result.passed else "FAIL ✗"
+    time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+    print(f"   Result: {status} ({time_str})")
+    
+    # 2. Run test suite
+    print(f"\n📋 SECTION 2: Test Suite")
+    print("-" * 40)
+    
+    if test_file is None:
+        test_file = Path("tests/test_data/example_test_suite.json")
+
+    test_suite = evaluator.load_test_suite(Path(test_file))
+    print(f"Loaded: {test_suite.name} ({len(test_suite.tests)} tests)")
+    
+    for test in test_suite.tests:
+        print(f"🧪 Test: {test.id}")
+        print(f"   Command: '{test.voice_command}'")
+        result = evaluator.evaluate_test(test)
+        all_results.append(result)
+        
+        status = "PASS ✓" if result.passed else "FAIL ✗"
+        time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+        print(f"   Result: {status} ({time_str})")
+    
+    # 3. Run custom tools test
+    print(f"\n📋 SECTION 3: Custom Tools Test")
+    print("-" * 40)
+    
+    custom_tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "send_email",
+                "description": "Send an email to a recipient",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "to": {
+                            "type": "string",
+                            "description": "Email recipient",
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Email subject",
+                        },
+                        "body": {
+                            "type": "string",
+                            "description": "Email body",
+                        },
+                    },
+                    "required": ["to", "subject"],
+                },
+            },
+        }
+    ]
+
+    custom_evaluator = ServerEvaluator(
+        server_url=server_url,
+        available_tools=custom_tools,
+        debug=debug,
+    )
+
+    custom_test = VoiceCommandTest(
+        id="custom_001",
+        voice_command="Send an email to john@example.com with subject 'Meeting Tomorrow'",
+        expected_tool_calls=[
+            ToolCall(
+                name="send_email",
+                arguments={
+                    "to": "john@example.com",
+                    "subject": "Meeting Tomorrow",
+                },
+            )
+        ],
+    )
+
+    print(f"🧪 Test: {custom_test.id}")
+    print(f"   Command: '{custom_test.voice_command}'")
+    result = custom_evaluator.evaluate_test(custom_test)
+    all_results.append(result)
+    
+    status = "PASS ✓" if result.passed else "FAIL ✗"
+    time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+    print(f"   Result: {status} ({time_str})")
+
+    # Summary
+    total_time = (time.time() - total_start_time) * 1000
+    passed_count = sum(1 for r in all_results if r.passed)
+    total_count = len(all_results)
+    pass_rate = (passed_count / total_count * 100) if total_count > 0 else 0
+
+    print("\n" + "=" * 80)
+    print("FINAL RESULTS SUMMARY")
+    print("=" * 80)
+
+    print(f"\n📊 Overall Statistics:")
+    print(f"   Tests Passed: {passed_count}/{total_count} ({pass_rate:.1f}%)")
+    print(f"   Total Time: {total_time:.1f}ms")
+    
+    if all_results:
+        avg_time = sum(r.evaluation_time_ms for r in all_results if r.evaluation_time_ms) / len([r for r in all_results if r.evaluation_time_ms])
+        min_time = min(r.evaluation_time_ms for r in all_results if r.evaluation_time_ms)
+        max_time = max(r.evaluation_time_ms for r in all_results if r.evaluation_time_ms)
+        print(f"   Average Test Time: {avg_time:.1f}ms")
+        print(f"   Fastest Test: {min_time:.1f}ms")
+        print(f"   Slowest Test: {max_time:.1f}ms")
+
+    print(f"\n📋 Individual Results:")
+    for result in all_results:
+        status = "PASS ✓" if result.passed else "FAIL ✗"
+        time_str = f"({result.evaluation_time_ms:.1f}ms)" if result.evaluation_time_ms else "(N/A)"
+        print(f"   {status} {result.test_id} {time_str}")
+
+        if not result.passed:
+            print(f"      Expected: {[f'{tc.name}({tc.arguments})' for tc in result.expected_tool_calls]}")
+            print(f"      Predicted: {[f'{tc.name}({tc.arguments})' for tc in result.predicted_tool_calls]}")
+            if result.error:
+                print(f"      Error: {result.error}")
+
+    print("=" * 80)
+    return passed_count == total_count
 
 
 def run_test_suite(server_url: str, test_file: str = None, debug: bool = False):
@@ -166,7 +363,8 @@ def run_test_suite(server_url: str, test_file: str = None, debug: bool = False):
     # Detailed results
     for result in results:
         status = "PASS ✓" if result.passed else "FAIL ✗"
-        print(f"{status} {result.test_id}")
+        time_str = f"({result.evaluation_time_ms:.1f}ms)" if result.evaluation_time_ms else ""
+        print(f"{status} {result.test_id} {time_str}")
 
         if not result.passed:
             print(f"  Expected:")
@@ -283,6 +481,10 @@ def run_custom_tools(server_url: str, debug: bool = False):
     print("RESULTS")
     print("=" * 80)
     print(f"Status: {'PASS ✓' if result.passed else 'FAIL ✗'}")
+    
+    if result.evaluation_time_ms:
+        print(f"Evaluation Time: {result.evaluation_time_ms:.1f}ms")
+    
     print(f"\nPredicted Tool Calls:")
     for tc in result.predicted_tool_calls:
         print(f"  - {tc.name}({tc.arguments})")
@@ -315,9 +517,9 @@ def main():
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["single", "suite", "custom"],
-        default="single",
-        help="Evaluation mode: single test, test suite, or custom tools (default: single)",
+        choices=["single", "suite", "custom", "all"],
+        default="all",
+        help="Evaluation mode: single test, test suite, custom tools, or all tests combined (default: all)",
     )
     parser.add_argument(
         "--timeout",
@@ -355,6 +557,8 @@ def main():
             success = run_test_suite(server_url, args.test_suite, args.debug)
         elif args.mode == "custom":
             success = run_custom_tools(server_url, args.debug)
+        elif args.mode == "all":
+            success = run_all_tests(server_url, args.test_suite, args.debug)
 
         if success:
             print("\n🎉 All tests passed!")

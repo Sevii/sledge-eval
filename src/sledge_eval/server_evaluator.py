@@ -1,6 +1,7 @@
 """Server-based evaluator that uses llama-server HTTP API."""
 
 import json
+import time
 import requests
 from typing import Any, Dict, List, Optional
 
@@ -200,6 +201,8 @@ class ServerEvaluator(Evaluator):
         Returns:
             EvaluationResult with pass/fail and details
         """
+        start_time = time.time()
+        
         try:
             # Check server health first
             if not self._check_server_health():
@@ -293,20 +296,28 @@ class ServerEvaluator(Evaluator):
                 predicted_tool_calls, test.expected_tool_calls
             )
 
+            # Calculate evaluation time
+            evaluation_time_ms = (time.time() - start_time) * 1000
+
             return EvaluationResult(
                 test_id=test.id,
                 passed=passed,
                 predicted_tool_calls=predicted_tool_calls,
                 expected_tool_calls=test.expected_tool_calls,
+                evaluation_time_ms=evaluation_time_ms,
             )
 
         except Exception as e:
+            # Calculate evaluation time even for errors
+            evaluation_time_ms = (time.time() - start_time) * 1000
+            
             return EvaluationResult(
                 test_id=test.id,
                 passed=False,
                 predicted_tool_calls=[],
                 expected_tool_calls=test.expected_tool_calls,
                 error=str(e),
+                evaluation_time_ms=evaluation_time_ms,
             )
 
     def _compare_tool_calls(

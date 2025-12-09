@@ -1,4 +1,4 @@
-/Users/nicholassledgianowski/Library/Caches/llama.cpp/mistralai_Ministral-3-3B-Reasoning-2512-GGUF_Ministral-3-3B-Reasoning-2512-BF16-mmproj.gguf
+
 
 
 
