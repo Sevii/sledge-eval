@@ -162,11 +162,23 @@ run_evaluation() {
     
     print_info "Running evaluation in $mode mode..."
     
+    # Extract model name from arguments
+    local model_name_arg=""
+    if [ ! -z "$MODEL" ]; then
+        # Clean up model name for use as argument (replace / and : with safe characters)
+        local clean_model_name=$(echo "$MODEL" | sed 's/\//_/g' | sed 's/:/_/g')
+        model_name_arg="--model-name \"$MODEL\""
+    fi
+    
     # Build the evaluation command
     local eval_cmd="uv run eval_server.py --port $port --mode $mode"
     
     if [ ! -z "$test_suite" ]; then
         eval_cmd="$eval_cmd --test-suite $test_suite"
+    fi
+    
+    if [ ! -z "$model_name_arg" ]; then
+        eval_cmd="$eval_cmd $model_name_arg"
     fi
     
     # Run the evaluation

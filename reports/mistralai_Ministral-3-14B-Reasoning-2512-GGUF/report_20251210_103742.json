@@ -1,0 +1,249 @@
+{
+  "timestamp": "2025-12-10 10:37:42.446679",
+  "model_name": "\"mistralai/Ministral-3-14B-Reasoning-2512-GGUF\"",
+  "server_url": "http://localhost:8080",
+  "evaluation_mode": "all",
+  "test_suite_name": null,
+  "total_tests": 6,
+  "passed_tests": 5,
+  "failed_tests": 1,
+  "pass_rate": 83.33333333333334,
+  "total_evaluation_time_ms": 106915.64869880676,
+  "test_results": [
+    {
+      "test_id": "single_001",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 24550.63486099243,
+      "voice_command": "Turn on the living room lights",
+      "test_description": "Simple light control command",
+      "tags": [
+        "lights",
+        "smart_home"
+      ]
+    },
+    {
+      "test_id": "test_001",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 14860.939025878906,
+      "voice_command": "Turn on the living room lights",
+      "test_description": "Simple command to turn on lights in a specific room",
+      "tags": [
+        "smart_home",
+        "lights",
+        "basic"
+      ]
+    },
+    {
+      "test_id": "test_002",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 20533.52403640747,
+      "voice_command": "Set the thermostat to 72 degrees",
+      "test_description": "Command to adjust temperature",
+      "tags": [
+        "smart_home",
+        "thermostat",
+        "basic"
+      ]
+    },
+    {
+      "test_id": "test_003",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "playlist": "workout playlist"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "playlist": "workout"
+          }
+        },
+        {
+          "name": "adjust_volume",
+          "arguments": {
+            "action": "increase"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 16385.01501083374,
+      "voice_command": "Play my workout playlist and turn up the volume",
+      "test_description": "Multi-action command requiring multiple tool calls",
+      "tags": [
+        "music",
+        "multi_action"
+      ]
+    },
+    {
+      "test_id": "test_004",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "current_location",
+            "timeframe": "today"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "timeframe": "today"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 14344.554901123047,
+      "voice_command": "What's the weather like today?",
+      "test_description": "Information query requiring weather API call",
+      "tags": [
+        "weather",
+        "query"
+      ]
+    },
+    {
+      "test_id": "custom_001",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "send_email",
+          "arguments": {
+            "to": "john@example.com",
+            "subject": "Meeting Tomorrow"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "send_email",
+          "arguments": {
+            "to": "john@example.com",
+            "subject": "Meeting Tomorrow"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 16240.980863571167,
+      "voice_command": "Send an email to john@example.com with subject 'Meeting Tomorrow'",
+      "test_description": null,
+      "tags": []
+    }
+  ],
+  "errors": [],
+  "tags_tested": [
+    "lights",
+    "smart_home",
+    "basic",
+    "thermostat",
+    "music",
+    "multi_action",
+    "weather",
+    "query"
+  ],
+  "tag_performance": {
+    "lights": {
+      "passed": 2,
+      "failed": 0,
+      "total": 2
+    },
+    "smart_home": {
+      "passed": 3,
+      "failed": 0,
+      "total": 3
+    },
+    "basic": {
+      "passed": 2,
+      "failed": 0,
+      "total": 2
+    },
+    "thermostat": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "music": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "multi_action": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "weather": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "query": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    }
+  }
+}

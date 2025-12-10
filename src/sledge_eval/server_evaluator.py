@@ -305,6 +305,9 @@ class ServerEvaluator(Evaluator):
                 predicted_tool_calls=predicted_tool_calls,
                 expected_tool_calls=test.expected_tool_calls,
                 evaluation_time_ms=evaluation_time_ms,
+                voice_command=test.voice_command,
+                test_description=test.description,
+                tags=test.tags,
             )
 
         except Exception as e:
@@ -318,6 +321,9 @@ class ServerEvaluator(Evaluator):
                 expected_tool_calls=test.expected_tool_calls,
                 error=str(e),
                 evaluation_time_ms=evaluation_time_ms,
+                voice_command=test.voice_command,
+                test_description=test.description,
+                tags=test.tags,
             )
 
     def _compare_tool_calls(

@@ -14,10 +14,67 @@ import argparse
 import time
 from pathlib import Path
 
-from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall
+from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall, EvaluationReport
 
 
-def run_single_test(server_url: str, debug: bool = False):
+def generate_report(
+    results: list, 
+    server_url: str, 
+    mode: str, 
+    model_name: str = "unknown",
+    test_suite_name: str = None
+) -> Path:
+    """Generate and save a comprehensive evaluation report."""
+    # Calculate total evaluation time
+    total_time = sum(r.evaluation_time_ms or 0 for r in results)
+    
+    # Create report
+    report = EvaluationReport(
+        model_name=model_name,
+        server_url=server_url,
+        evaluation_mode=mode,
+        test_suite_name=test_suite_name,
+        total_tests=0,
+        passed_tests=0,
+        failed_tests=0,
+        pass_rate=0.0,
+        total_evaluation_time_ms=total_time,
+        test_results=[]
+    )
+    
+    # Add all results
+    for result in results:
+        report.add_result(result)
+    
+    # Save report
+    base_path = Path.cwd()
+    report_path = report.save_to_file(base_path)
+    
+    print(f"\n📊 Report saved: {report_path}")
+    return report_path
+
+
+def extract_model_name_from_url(server_url: str, evaluator: ServerEvaluator = None) -> str:
+    """Extract model name from server or use URL as fallback."""
+    try:
+        if evaluator:
+            # Try to get model info from server
+            import requests
+            response = requests.get(f"{server_url}/v1/models", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if "data" in data and len(data["data"]) > 0:
+                    return data["data"][0].get("id", "unknown")
+                elif "models" in data and len(data["models"]) > 0:
+                    return data["models"][0].get("model", "unknown")
+    except Exception:
+        pass
+    
+    # Fallback to URL-based name
+    return f"server_{server_url.replace('http://', '').replace('https://', '').replace(':', '_').replace('/', '_')}"
+
+
+def run_single_test(server_url: str, debug: bool = False, model_name: str = None):
     """Run a single test evaluation."""
     print("=" * 80)
     print("Single Test Evaluation (Server)")
@@ -99,11 +156,17 @@ def run_single_test(server_url: str, debug: bool = False):
     if result.error:
         print(f"\nError: {result.error}")
 
+    # Generate report
+    if model_name is None:
+        model_name = extract_model_name_from_url(server_url, evaluator)
+    
+    generate_report([result], server_url, "single", model_name)
+
     print("=" * 80)
     return result.passed
 
 
-def run_all_tests(server_url: str, test_file: str = None, debug: bool = False):
+def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, model_name: str = None):
     """Run all test types: single test, test suite, and custom tools."""
     print("=" * 80)
     print("ALL TESTS EVALUATION (Server)")
@@ -291,11 +354,17 @@ def run_all_tests(server_url: str, test_file: str = None, debug: bool = False):
             if result.error:
                 print(f"      Error: {result.error}")
 
+    # Generate report
+    if model_name is None:
+        model_name = extract_model_name_from_url(server_url, evaluator)
+    
+    generate_report(all_results, server_url, "all", model_name)
+
     print("=" * 80)
     return passed_count == total_count
 
 
-def run_test_suite(server_url: str, test_file: str = None, debug: bool = False):
+def run_test_suite(server_url: str, test_file: str = None, debug: bool = False, model_name: str = None):
     """Run a full test suite evaluation."""
     print("=" * 80)
     print("Test Suite Evaluation (Server)")
@@ -377,11 +446,17 @@ def run_test_suite(server_url: str, test_file: str = None, debug: bool = False):
                 print(f"  Error: {result.error}")
             print()
 
+    # Generate report
+    if model_name is None:
+        model_name = extract_model_name_from_url(server_url, evaluator)
+    
+    generate_report(results, server_url, "suite", model_name, test_suite.name)
+
     print("=" * 80)
     return passed_count == total_count
 
 
-def run_custom_tools(server_url: str, debug: bool = False):
+def run_custom_tools(server_url: str, debug: bool = False, model_name: str = None):
     """Run evaluation with custom tool definitions."""
     print("=" * 80)
     print("Custom Tools Evaluation (Server)")
@@ -488,6 +563,13 @@ def run_custom_tools(server_url: str, debug: bool = False):
     print(f"\nPredicted Tool Calls:")
     for tc in result.predicted_tool_calls:
         print(f"  - {tc.name}({tc.arguments})")
+    
+    # Generate report
+    if model_name is None:
+        model_name = extract_model_name_from_url(server_url, evaluator)
+    
+    generate_report([result], server_url, "custom", model_name)
+    
     print("=" * 80)
     return result.passed
 
@@ -532,6 +614,11 @@ def main():
         action="store_true",
         help="Enable debug mode with verbose logging of requests and responses",
     )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        help="Override model name for report generation (will auto-detect from server if not provided)",
+    )
 
     args = parser.parse_args()
 
@@ -552,13 +639,13 @@ def main():
     try:
         success = False
         if args.mode == "single":
-            success = run_single_test(server_url, args.debug)
+            success = run_single_test(server_url, args.debug, args.model_name)
         elif args.mode == "suite":
-            success = run_test_suite(server_url, args.test_suite, args.debug)
+            success = run_test_suite(server_url, args.test_suite, args.debug, args.model_name)
         elif args.mode == "custom":
-            success = run_custom_tools(server_url, args.debug)
+            success = run_custom_tools(server_url, args.debug, args.model_name)
         elif args.mode == "all":
-            success = run_all_tests(server_url, args.test_suite, args.debug)
+            success = run_all_tests(server_url, args.test_suite, args.debug, args.model_name)
 
         if success:
             print("\n🎉 All tests passed!")

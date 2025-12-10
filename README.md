@@ -47,8 +47,8 @@ Runs the tests against a llama.cpp server you setup to run at localhost:8080
 
 ### Models I've tested
 - Qwen/Qwen3-VL-4B-Instruct-GGUF
-- mistralai/Ministral-3-14B-Reasoning-2512-GGUF
 - mistralai/Ministral-3-3B-Reasoning-2512-GGUF
+- mistralai/Ministral-3-14B-Reasoning-2512-GGUF
 
 
 #TODO 
