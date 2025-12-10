@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Default configuration
-DEFAULT_MODEL="mistralai/Ministral-3-3B-Reasoning-2512-GGUF"
+DEFAULT_MODEL="Qwen/Qwen3-VL-4B-Instruct-GGUF"
 DEFAULT_PORT="8080"
 DEFAULT_MODE="all"
 
@@ -86,7 +86,7 @@ wait_for_server() {
         fi
         
         attempt=$((attempt + 1))
-        sleep 2  # Wait longer for model loading
+        sleep 3  # Wait longer for model loading
     done
     
     print_error "Server failed to be ready within $((max_attempts * 2)) seconds"
