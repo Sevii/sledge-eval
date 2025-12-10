@@ -34,6 +34,7 @@ uv pip install -e ".[dev]"
 ### Running it 
 
 ` ./run_eval.sh`
+`./run_eval.sh mistralai/Ministral-3-3B-Reasoning-2512-GGUF`
 
 - Boots a llama.cpp server
 - Runs tests against it 

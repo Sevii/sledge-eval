@@ -69,27 +69,39 @@ wait_for_server() {
     print_info "Waiting for llama-server to be ready on port $port..."
     
     while [ $attempt -lt $max_attempts ]; do
-        # Check if server is responding
-        local response=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$port/v1/models" 2>/dev/null)
+        # First check health endpoint
+        local health_response=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$port/health" 2>/dev/null)
         
-        if [ "$response" = "200" ]; then
-            # Server is responding, now check if model is loaded
-            local models_response=$(curl -s "http://localhost:$port/v1/models" 2>/dev/null)
-            if echo "$models_response" | grep -q '"object":"list"'; then
-                print_success "Server is ready and model is loaded!"
-                return 0
+        if [ "$health_response" = "200" ]; then
+            # Health is good, now check if models endpoint works
+            local models_response=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$port/v1/models" 2>/dev/null)
+            if [ "$models_response" = "200" ]; then
+                # Double check that model is actually loaded
+                local models_data=$(curl -s "http://localhost:$port/v1/models" 2>/dev/null)
+                if echo "$models_data" | grep -q '"object":"list"'; then
+                    print_success "Server is ready and model is loaded!"
+                    return 0
+                else
+                    echo -n "L"  # L for Loading model data
+                fi
             else
-                echo -n "L"  # L for Loading
+                echo -n "M"  # M for Models endpoint not ready
             fi
+        elif [ "$health_response" = "503" ]; then
+            echo -n "H"  # H for Health check failed (server loading)
+            # Wait longer when health check fails as server is still starting up
+            sleep 5
+            attempt=$((attempt + 2))  # Count this as 2 attempts since we waited longer
+            continue
         else
-            echo -n "."
+            echo -n "."  # Server not responding at all
         fi
         
         attempt=$((attempt + 1))
-        sleep 3  # Wait longer for model loading
+        sleep 3
     done
     
-    print_error "Server failed to be ready within $((max_attempts * 2)) seconds"
+    print_error "Server failed to be ready within $((max_attempts * 3)) seconds"
     return 1
 }
 
