@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
+from .hardware_detector import HardwareInfo, HardwareDetector
 
 
 class ToolCall(BaseModel):
@@ -68,6 +69,9 @@ class EvaluationReport(BaseModel):
     server_url: Optional[str] = None
     evaluation_mode: str  # single, suite, custom, all
     test_suite_name: Optional[str] = None
+    
+    # Hardware information
+    hardware_info: Optional[HardwareInfo] = None
     
     # Results summary
     total_tests: int
@@ -161,6 +165,69 @@ class EvaluationReport(BaseModel):
         if self.test_suite_name:
             lines.append(f"**Test Suite:** {self.test_suite_name}")
         lines.append("")
+        
+        # Hardware Information
+        if self.hardware_info:
+            lines.append("## 🖥️ Hardware Information")
+            lines.append("")
+            
+            # Create hardware summary table
+            lines.append("| Component | Details |")
+            lines.append("|-----------|---------|")
+            
+            if self.hardware_info.gpu_name:
+                gpu_details = self.hardware_info.gpu_name
+                if self.hardware_info.gpu_family:
+                    gpu_details += f" ({self.hardware_info.gpu_family})"
+                lines.append(f"| **GPU** | {gpu_details} |")
+            
+            if self.hardware_info.metal_backend:
+                lines.append(f"| **Compute Backend** | Metal |")
+            
+            if self.hardware_info.total_memory_mb:
+                lines.append(f"| **Total Memory** | {self.hardware_info.total_memory_mb:.0f} MB |")
+            
+            if self.hardware_info.model_memory_mb:
+                lines.append(f"| **Model Memory** | {self.hardware_info.model_memory_mb:.0f} MB |")
+            
+            if self.hardware_info.context_memory_mb:
+                lines.append(f"| **Context Memory** | {self.hardware_info.context_memory_mb:.0f} MB |")
+            
+            if self.hardware_info.model_size_gb:
+                lines.append(f"| **Model Size** | {self.hardware_info.model_size_gb:.2f} GB |")
+            
+            if self.hardware_info.model_params_b:
+                lines.append(f"| **Model Parameters** | {self.hardware_info.model_params_b:.1f}B |")
+            
+            if self.hardware_info.n_threads:
+                thread_info = f"{self.hardware_info.n_threads}"
+                if self.hardware_info.n_threads_batch:
+                    thread_info += f" (batch: {self.hardware_info.n_threads_batch})"
+                lines.append(f"| **Threads** | {thread_info} |")
+            
+            if self.hardware_info.context_size:
+                lines.append(f"| **Context Size** | {self.hardware_info.context_size:,} |")
+            
+            if self.hardware_info.os_name and self.hardware_info.architecture:
+                lines.append(f"| **System** | {self.hardware_info.os_name} {self.hardware_info.architecture} |")
+            
+            # GPU Capabilities
+            capabilities = []
+            if self.hardware_info.has_unified_memory:
+                capabilities.append("Unified Memory")
+            if self.hardware_info.has_bfloat:
+                capabilities.append("BFloat16")
+            if self.hardware_info.has_tensor is False:
+                capabilities.append("No Tensor API")
+            
+            if capabilities:
+                lines.append(f"| **GPU Features** | {', '.join(capabilities)} |")
+            
+            if self.hardware_info.llama_cpp_build and self.hardware_info.llama_cpp_commit:
+                build_info = f"Build {self.hardware_info.llama_cpp_build} ({self.hardware_info.llama_cpp_commit[:8]})"
+                lines.append(f"| **llama.cpp** | {build_info} |")
+            
+            lines.append("")
         
         # Executive Summary
         lines.append("## 📊 Executive Summary")
@@ -292,6 +359,17 @@ class EvaluationReport(BaseModel):
         lines.append(f"| Failed Tests | {self.failed_tests} |")
         lines.append(f"| Pass Rate | {self.pass_rate:.2f}% |")
         lines.append(f"| Total Time | {self.total_evaluation_time_ms:.1f}ms |")
+        
+        # Add hardware summary to technical details
+        if self.hardware_info:
+            if self.hardware_info.model_size_gb and self.hardware_info.model_memory_mb:
+                efficiency = (self.hardware_info.model_size_gb * 1024) / self.hardware_info.model_memory_mb
+                lines.append(f"| Memory Efficiency | {efficiency:.2f}x |")
+            
+            if self.total_evaluation_time_ms > 0 and self.hardware_info.n_threads:
+                throughput = self.total_tests / (self.total_evaluation_time_ms / 1000) * self.hardware_info.n_threads
+                lines.append(f"| Throughput (tests/sec/thread) | {throughput:.2f} |")
+        
         lines.append("")
         
         # Footer

@@ -11,6 +11,7 @@ from .evaluator import (
 from .ministral_evaluator import MinistralEvaluator
 from .server_evaluator import ServerEvaluator
 from .anki_evaluator import AnkiLargeToolSetEvaluator
+from .hardware_detector import HardwareInfo, HardwareDetector
 
 __version__ = "0.1.0"
 
@@ -19,6 +20,8 @@ __all__ = [
     "EvaluationReport",
     "EvaluationResult", 
     "Evaluator",
+    "HardwareDetector",
+    "HardwareInfo",
     "MinistralEvaluator",
     "ServerEvaluator",
     "TestSuite",

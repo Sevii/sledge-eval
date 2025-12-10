@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall, EvaluationReport, AnkiLargeToolSetEvaluator
+from src.sledge_eval.hardware_detector import HardwareDetector
 
 
 def generate_report(
@@ -28,12 +29,17 @@ def generate_report(
     # Calculate total evaluation time
     total_time = sum(r.evaluation_time_ms or 0 for r in results)
     
+    # Detect hardware information
+    hardware_detector = HardwareDetector()
+    hardware_info = hardware_detector.extract_hardware_info()
+    
     # Create report
     report = EvaluationReport(
         model_name=model_name,
         server_url=server_url,
         evaluation_mode=mode,
         test_suite_name=test_suite_name,
+        hardware_info=hardware_info,
         total_tests=0,
         passed_tests=0,
         failed_tests=0,
@@ -115,6 +121,14 @@ def run_single_test(server_url: str, debug: bool = False, model_name: str = None
         return False
     
     print("✅ Server is responding!")
+    
+    # Display hardware information
+    hardware_detector = HardwareDetector()
+    hardware_summary = hardware_detector.get_hardware_summary()
+    if hardware_summary:
+        print(f"\n🖥️ Hardware Information:")
+        for key, value in hardware_summary.items():
+            print(f"   {key}: {value}")
 
     # Create a test case
     test = VoiceCommandTest(
@@ -349,6 +363,14 @@ def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, m
         return False
     
     print("✅ Server is responding!")
+    
+    # Display hardware information
+    hardware_detector = HardwareDetector()
+    hardware_summary = hardware_detector.get_hardware_summary()
+    if hardware_summary:
+        print(f"\n🖥️ Hardware Information:")
+        for key, value in hardware_summary.items():
+            print(f"   {key}: {value}")
     
     print("\n" + "=" * 80)
     print("RUNNING ALL TESTS")
