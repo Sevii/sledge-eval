@@ -184,6 +184,9 @@ class EvaluationReport(BaseModel):
             if self.hardware_info.metal_backend:
                 lines.append(f"| **Compute Backend** | Metal |")
             
+            if self.hardware_info.gpu_memory_mb:
+                lines.append(f"| **GPU Memory** | {self.hardware_info.gpu_memory_mb:.0f} MB |")
+            
             if self.hardware_info.total_memory_mb:
                 lines.append(f"| **Total Memory** | {self.hardware_info.total_memory_mb:.0f} MB |")
             

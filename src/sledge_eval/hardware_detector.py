@@ -25,6 +25,7 @@ class HardwareInfo(BaseModel):
     model_memory_mb: Optional[float] = None
     context_memory_mb: Optional[float] = None
     compute_memory_mb: Optional[float] = None
+    gpu_memory_mb: Optional[float] = None
     
     # Threading Information (from llama-server logs)
     n_threads: Optional[int] = None
@@ -142,6 +143,8 @@ class HardwareDetector:
         working_set_match = re.search(r'recommendedMaxWorkingSetSize\s+=\s+([\d.]+)\s+MB', log_content)
         if working_set_match:
             info.recommended_max_working_set_size_mb = float(working_set_match.group(1))
+            # Use recommendedMaxWorkingSetSize as GPU memory available
+            info.gpu_memory_mb = float(working_set_match.group(1))
     
     def _extract_memory_info(self, log_content: str, info: HardwareInfo) -> None:
         """Extract memory information from logs."""
@@ -216,6 +219,8 @@ class HardwareDetector:
             summary['Compute Backend'] = 'Metal'
         
         # Memory
+        if info.gpu_memory_mb:
+            summary['GPU Memory'] = f"{info.gpu_memory_mb:.0f} MB"
         if info.total_memory_mb:
             summary['Total Memory'] = f"{info.total_memory_mb:.0f} MB"
         if info.model_memory_mb:
@@ -236,3 +241,15 @@ class HardwareDetector:
             summary['System'] = f"{info.os_name} {info.architecture}"
         
         return summary
+
+
+if __name__ == "__main__":
+    # Test the hardware detector
+    detector = HardwareDetector()
+    summary = detector.get_hardware_summary()
+    print("Hardware Summary:")
+    for key, value in summary.items():
+        print(f"  {key}: {value}")
+    
+    info = detector.extract_hardware_info()
+    print(f"\nGPU Memory: {info.gpu_memory_mb} MB" if info.gpu_memory_mb else "\nGPU Memory: Not detected")
