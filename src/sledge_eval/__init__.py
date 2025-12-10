@@ -10,12 +10,14 @@ from .evaluator import (
 )
 from .ministral_evaluator import MinistralEvaluator
 from .server_evaluator import ServerEvaluator
+from .anki_evaluator import AnkiLargeToolSetEvaluator
 
 __version__ = "0.1.0"
 
 __all__ = [
+    "AnkiLargeToolSetEvaluator",
     "EvaluationReport",
-    "EvaluationResult",
+    "EvaluationResult", 
     "Evaluator",
     "MinistralEvaluator",
     "ServerEvaluator",

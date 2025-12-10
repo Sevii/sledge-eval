@@ -1,0 +1,206 @@
+{
+  "name": "Anki Large Tool Set Test Suite",
+  "description": "Comprehensive test suite for evaluating model performance with large tool sets using Anki MCP server tools. Tests range from simple tool selection to complex multi-step workflows.",
+  "tests": [
+    {
+      "id": "anki_basic_001",
+      "voice_command": "Show me all my Anki decks",
+      "expected_tool_calls": [
+        {
+          "name": "list_decks",
+          "arguments": {}
+        }
+      ],
+      "description": "Basic tool selection from large set - simple deck listing",
+      "tags": ["anki", "basic", "large_toolset", "deck_management"]
+    },
+    {
+      "id": "anki_basic_002", 
+      "voice_command": "Create a new deck called Spanish Vocabulary",
+      "expected_tool_calls": [
+        {
+          "name": "create_deck",
+          "arguments": {
+            "deck_name": "Spanish Vocabulary"
+          }
+        }
+      ],
+      "description": "Basic tool selection with parameters from large set",
+      "tags": ["anki", "basic", "large_toolset", "deck_creation"]
+    },
+    {
+      "id": "anki_intermediate_001",
+      "voice_command": "Start a review session for my Spanish deck",
+      "expected_tool_calls": [
+        {
+          "name": "sync",
+          "arguments": {}
+        },
+        {
+          "name": "get_due_cards",
+          "arguments": {
+            "deck_name": "Spanish"
+          }
+        }
+      ],
+      "description": "Multi-step workflow requiring correct tool sequence",
+      "tags": ["anki", "intermediate", "large_toolset", "review_workflow", "multi_step"]
+    },
+    {
+      "id": "anki_intermediate_002",
+      "voice_command": "Find all notes tagged with vocabulary in my French deck",
+      "expected_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:French tag:vocabulary"
+          }
+        }
+      ],
+      "description": "Complex query construction with Anki search syntax",
+      "tags": ["anki", "intermediate", "large_toolset", "search", "query_syntax"]
+    },
+    {
+      "id": "anki_advanced_001",
+      "voice_command": "Add a new flashcard with front 'Hola' and back 'Hello' to my Spanish deck using the Basic note type",
+      "expected_tool_calls": [
+        {
+          "name": "addNote",
+          "arguments": {
+            "deckName": "Spanish",
+            "modelName": "Basic",
+            "fields": {
+              "Front": "Hola",
+              "Back": "Hello"
+            }
+          }
+        }
+      ],
+      "description": "Complex tool call with nested object parameters",
+      "tags": ["anki", "advanced", "large_toolset", "note_creation", "complex_parameters"]
+    },
+    {
+      "id": "anki_advanced_002",
+      "voice_command": "Show me what note types are available and then show me the fields for the Basic note type",
+      "expected_tool_calls": [
+        {
+          "name": "modelNames",
+          "arguments": {}
+        },
+        {
+          "name": "modelFieldNames",
+          "arguments": {
+            "modelName": "Basic"
+          }
+        }
+      ],
+      "description": "Sequential tool calls with dependency between calls",
+      "tags": ["anki", "advanced", "large_toolset", "model_introspection", "sequential"]
+    },
+    {
+      "id": "anki_expert_001",
+      "voice_command": "Find all notes in my Japanese deck that contain the word 'sushi', then get detailed information about those notes",
+      "expected_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:Japanese front:sushi OR back:sushi"
+          }
+        },
+        {
+          "name": "notesInfo",
+          "arguments": {
+            "notes": []
+          }
+        }
+      ],
+      "description": "Complex workflow with dependent tool calls and advanced query",
+      "tags": ["anki", "expert", "large_toolset", "complex_workflow", "dependent_calls"]
+    },
+    {
+      "id": "anki_edge_001",
+      "voice_command": "Delete the note with ID 12345 permanently",
+      "expected_tool_calls": [
+        {
+          "name": "deleteNotes",
+          "arguments": {
+            "notes": [12345],
+            "confirmDeletion": true
+          }
+        }
+      ],
+      "description": "High-risk tool selection with critical confirmation parameter",
+      "tags": ["anki", "edge_case", "large_toolset", "destructive_action", "confirmation"]
+    },
+    {
+      "id": "anki_context_001",
+      "voice_command": "I want to study my cards. Get me some cards to review from my Math deck and show me the first one",
+      "expected_tool_calls": [
+        {
+          "name": "sync",
+          "arguments": {}
+        },
+        {
+          "name": "get_due_cards",
+          "arguments": {
+            "deck_name": "Math"
+          }
+        },
+        {
+          "name": "present_card",
+          "arguments": {
+            "card_id": 0,
+            "show_answer": false
+          }
+        }
+      ],
+      "description": "Context-aware workflow understanding study session requirements",
+      "tags": ["anki", "context_aware", "large_toolset", "study_session", "workflow"]
+    },
+    {
+      "id": "anki_precision_001",
+      "voice_command": "Show me the deck overview for my German deck",
+      "expected_tool_calls": [
+        {
+          "name": "guiDeckOverview", 
+          "arguments": {
+            "name": "German"
+          }
+        }
+      ],
+      "description": "Precise tool selection among many similar GUI tools",
+      "tags": ["anki", "precision", "large_toolset", "gui_tools", "disambiguation"]
+    },
+    {
+      "id": "anki_ambiguity_001",
+      "voice_command": "I want to see my cards",
+      "expected_tool_calls": [
+        {
+          "name": "get_due_cards",
+          "arguments": {}
+        }
+      ],
+      "description": "Handling ambiguous commands with reasonable defaults",
+      "tags": ["anki", "ambiguous", "large_toolset", "default_behavior"]
+    },
+    {
+      "id": "anki_parameter_complex_001",
+      "voice_command": "Update the front field of note 54321 to say 'Buenos días' instead",
+      "expected_tool_calls": [
+        {
+          "name": "updateNoteFields",
+          "arguments": {
+            "note": {
+              "id": 54321,
+              "fields": {
+                "Front": "Buenos días"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Complex nested parameter structure handling",
+      "tags": ["anki", "complex_parameters", "large_toolset", "nested_objects"]
+    }
+  ]
+}

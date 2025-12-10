@@ -14,7 +14,7 @@ import argparse
 import time
 from pathlib import Path
 
-from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall, EvaluationReport
+from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall, EvaluationReport, AnkiLargeToolSetEvaluator
 
 
 def generate_report(
@@ -168,8 +168,147 @@ def run_single_test(server_url: str, debug: bool = False, model_name: str = None
     return result.passed
 
 
+def run_anki_large_toolset(server_url: str, debug: bool = False, model_name: str = None):
+    """Run evaluation with Anki's large tool set (26+ tools)."""
+    print("=" * 80)
+    print("Anki Large Tool Set Evaluation (Server)")
+    print("=" * 80)
+
+    # Initialize evaluator with Anki tools
+    print(f"\nConnecting to llama-server at: {server_url}")
+    if debug:
+        print("🐛 Debug mode enabled")
+    evaluator = AnkiLargeToolSetEvaluator(
+        server_url=server_url,
+        debug=debug,
+    )
+    
+    print(f"📊 Tool Set Size: {evaluator.get_tool_count()} tools")
+    print(f"🔧 Available Tools: {', '.join(evaluator.get_tool_names()[:5])}... (showing first 5)")
+    
+    # Check server health
+    if not evaluator._check_server_health():
+        print("❌ Server is not responding. Make sure llama-server is running.")
+        print(f"   Base URL: {server_url}")
+        
+        # Check if anything is listening on the port
+        import subprocess
+        try:
+            port = server_url.split(':')[-1]
+            result = subprocess.run(['lsof', '-i', f':{port}'], capture_output=True, text=True)
+            if result.returncode == 0:
+                print(f"   Something is listening on port {port}:")
+                print("   " + result.stdout.replace('\n', '\n   '))
+            else:
+                print(f"   Nothing is listening on port {port}")
+        except Exception:
+            pass
+            
+        print("   Possible issues:")
+        print("   - Server not started yet")
+        print("   - Wrong port number")  
+        print("   - Server crashed during startup")
+        print("   - Firewall blocking connection")
+        print("   - Server doesn't support expected API endpoints")
+        return False
+    
+    print("✅ Server is responding with large tool set!")
+
+    # Load Anki test suite
+    test_file = Path("tests/test_data/anki_large_toolset_suite.json")
+    
+    if not test_file.exists():
+        print(f"❌ Test suite file not found: {test_file}")
+        print("   Make sure you have the Anki test suite file in the correct location.")
+        return False
+
+    print(f"\nLoading Anki large toolset test suite from: {test_file}")
+    test_suite = evaluator.load_test_suite(Path(test_file))
+    print(f"Loaded test suite: {test_suite.name}")
+    print(f"Description: {test_suite.description}")
+    print(f"Number of tests: {len(test_suite.tests)}\n")
+
+    # Evaluate the suite
+    print("Running large toolset evaluation...\n")
+    results = []
+    total_start_time = time.time()
+    
+    for test in test_suite.tests:
+        print(f"🧪 Test: {test.id}")
+        print(f"   Command: '{test.voice_command}'")
+        print(f"   Tags: {', '.join(test.tags)}")
+        result = evaluator.evaluate_test(test)
+        results.append(result)
+        
+        status = "PASS ✓" if result.passed else "FAIL ✗"
+        time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+        print(f"   Result: {status} ({time_str})")
+        
+        if not result.passed and result.error:
+            print(f"   Error: {result.error}")
+        print()
+
+    # Calculate summary metrics
+    total_time = (time.time() - total_start_time) * 1000
+    passed_count = sum(1 for r in results if r.passed)
+    total_count = len(results)
+    pass_rate = (passed_count / total_count * 100) if total_count > 0 else 0
+
+    print("\n" + "=" * 80)
+    print("ANKI LARGE TOOLSET RESULTS SUMMARY")
+    print("=" * 80)
+
+    print(f"\n📊 Overall Statistics:")
+    print(f"   Tools Available: {evaluator.get_tool_count()}")
+    print(f"   Tests Passed: {passed_count}/{total_count} ({pass_rate:.1f}%)")
+    print(f"   Total Time: {total_time:.1f}ms")
+    
+    if results:
+        avg_time = sum(r.evaluation_time_ms for r in results if r.evaluation_time_ms) / len([r for r in results if r.evaluation_time_ms])
+        print(f"   Average Test Time: {avg_time:.1f}ms")
+
+    # Analyze performance by complexity
+    complexity_stats = {}
+    for result in results:
+        for tag in result.tags:
+            if tag in ['basic', 'intermediate', 'advanced', 'expert']:
+                if tag not in complexity_stats:
+                    complexity_stats[tag] = {'passed': 0, 'total': 0}
+                complexity_stats[tag]['total'] += 1
+                if result.passed:
+                    complexity_stats[tag]['passed'] += 1
+
+    if complexity_stats:
+        print(f"\n📈 Performance by Complexity:")
+        for complexity, stats in sorted(complexity_stats.items()):
+            rate = (stats['passed'] / stats['total'] * 100) if stats['total'] > 0 else 0
+            print(f"   {complexity.title()}: {stats['passed']}/{stats['total']} ({rate:.1f}%)")
+
+    print(f"\n📋 Individual Results:")
+    for result in results:
+        status = "PASS ✓" if result.passed else "FAIL ✗" 
+        time_str = f"({result.evaluation_time_ms:.1f}ms)" if result.evaluation_time_ms else "(N/A)"
+        complexity = next((tag for tag in result.tags if tag in ['basic', 'intermediate', 'advanced', 'expert']), 'other')
+        print(f"   {status} {result.test_id} [{complexity}] {time_str}")
+
+        if not result.passed:
+            print(f"      Expected: {[f'{tc.name}({tc.arguments})' for tc in result.expected_tool_calls]}")
+            print(f"      Predicted: {[f'{tc.name}({tc.arguments})' for tc in result.predicted_tool_calls]}")
+            if result.error:
+                print(f"      Error: {result.error}")
+
+    # Generate report
+    if model_name is None:
+        model_name = extract_model_name_from_url(server_url, evaluator)
+    
+    generate_report(results, server_url, "anki_large_toolset", model_name, test_suite.name)
+
+    print("=" * 80)
+    return passed_count == total_count
+
+
 def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, model_name: str = None):
-    """Run all test types: single test, test suite, and custom tools."""
+    """Run all test types: single test, test suite, custom tools, and Anki large toolset."""
     print("=" * 80)
     print("ALL TESTS EVALUATION (Server)")
     print("=" * 80)
@@ -321,6 +460,43 @@ def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, m
     status = "PASS ✓" if result.passed else "FAIL ✗"
     time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
     print(f"   Result: {status} ({time_str})")
+    
+    # 4. Run Anki large toolset test
+    print(f"\n📋 SECTION 4: Anki Large Toolset Test")
+    print("-" * 40)
+    
+    # Initialize Anki evaluator
+    anki_evaluator = AnkiLargeToolSetEvaluator(
+        server_url=server_url,
+        debug=debug,
+    )
+    
+    print(f"🔧 Tool Set Size: {anki_evaluator.get_tool_count()} tools")
+    
+    # Load Anki test suite
+    anki_test_file = Path("tests/test_data/anki_large_toolset_suite.json")
+    
+    if anki_test_file.exists():
+        try:
+            anki_test_suite = anki_evaluator.load_test_suite(anki_test_file)
+            print(f"Loaded: {anki_test_suite.name} ({len(anki_test_suite.tests)} tests)")
+            
+            for test in anki_test_suite.tests:
+                print(f"🧪 Test: {test.id}")
+                print(f"   Command: '{test.voice_command}'")
+                result = anki_evaluator.evaluate_test(test)
+                all_results.append(result)
+                
+                status = "PASS ✓" if result.passed else "FAIL ✗"
+                time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+                print(f"   Result: {status} ({time_str})")
+                
+        except Exception as e:
+            print(f"⚠️ Warning: Could not run Anki tests: {e}")
+            print("   Continuing with other tests...")
+    else:
+        print("⚠️ Warning: Anki test suite not found - skipping large toolset tests")
+        print(f"   Expected: {anki_test_file}")
 
     # Summary
     total_time = (time.time() - total_start_time) * 1000
@@ -601,9 +777,9 @@ def main():
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["single", "suite", "custom", "all"],
+        choices=["single", "suite", "custom", "all", "anki"],
         default="all",
-        help="Evaluation mode: single test, test suite, custom tools, or all tests combined (default: all)",
+        help="Evaluation mode: single test, test suite, custom tools, all tests combined, or anki large toolset (default: all)",
     )
     parser.add_argument(
         "--timeout",
@@ -646,6 +822,8 @@ def main():
             success = run_test_suite(server_url, args.test_suite, args.debug, args.model_name)
         elif args.mode == "custom":
             success = run_custom_tools(server_url, args.debug, args.model_name)
+        elif args.mode == "anki":
+            success = run_anki_large_toolset(server_url, args.debug, args.model_name)
         elif args.mode == "all":
             success = run_all_tests(server_url, args.test_suite, args.debug, args.model_name)
 

@@ -206,7 +206,7 @@ usage() {
     echo "Arguments:"
     echo "  MODEL      HuggingFace model ID (default: $DEFAULT_MODEL)"
     echo "  PORT       Server port (default: $DEFAULT_PORT)"
-    echo "  MODE       Evaluation mode: single, suite, custom, all (default: $DEFAULT_MODE)"
+    echo "  MODE       Evaluation mode: single, suite, custom, all, anki (default: $DEFAULT_MODE)"
     echo "  TEST_SUITE Path to test suite JSON file (optional)"
     echo ""
     echo "Examples:"
@@ -216,10 +216,11 @@ usage() {
     echo "  $0 mistralai/Ministral-3-3B-Reasoning-2512-GGUF 8080 suite tests/my_tests.json  # Custom test suite"
     echo ""
     echo "Available modes:"
-    echo "  all     - Run all test types: single, suite, and custom (default)"
+    echo "  all     - Run all test types: single, suite, custom, and Anki large toolset (default)"
     echo "  single  - Run a single test case"
     echo "  suite   - Run a full test suite"
     echo "  custom  - Run with custom tool definitions"
+    echo "  anki    - Run large tool set evaluation with 26+ Anki MCP tools"
 }
 
 # Main execution
