@@ -21,7 +21,7 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast Python package 
 
 ```bash
 # Install uv if you haven't already
-https://github.com/astral-sh/u
+https://github.com/astral-sh/uv
 
 # Create virtual environment and install dependencies
 uv venv
@@ -34,6 +34,7 @@ uv pip install -e ".[dev]"
 ### Running it 
 
 ` ./run_eval.sh`
+
 `./run_eval.sh mistralai/Ministral-3-3B-Reasoning-2512-GGUF`
 
 - Boots a llama.cpp server
