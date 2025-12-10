@@ -35,27 +35,27 @@ uv pip install -e ".[dev]"
 
 ` ./run_eval.sh`
 
-Boots a llama.cpp server
-Runs tests against it 
-Cleans up server
-Reports results
+- Boots a llama.cpp server
+- Runs tests against it 
+- Cleans up server
+- Reports results
 
 `uv run eval_server.py`
 Runs the tests against a llama.cpp server you setup to run at localhost:8080
 
 
 ### Models I've tested
-Qwen/Qwen3-VL-4B-Instruct-GGUF
-mistralai/Ministral-3-14B-Reasoning-2512-GGUF
-mistralai/Ministral-3-3B-Reasoning-2512-GGUF
+- Qwen/Qwen3-VL-4B-Instruct-GGUF
+- mistralai/Ministral-3-14B-Reasoning-2512-GGUF
+- mistralai/Ministral-3-3B-Reasoning-2512-GGUF
 
 
 #TODO 
 
-Update command line args to be more useful/flexible
-Update it to log results in a format useful for longterm comparison
-Add test cases written by a human
-Experiment with how different tool suites effect performance.
+- Update command line args to be more useful/flexible
+- Update it to log results in a format useful for longterm comparison
+- Add test cases written by a human
+- Experiment with how different tool suites effect performance.
 
 
 
