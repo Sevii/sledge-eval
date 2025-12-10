@@ -48,10 +48,12 @@ def generate_report(
     
     # Save report
     base_path = Path.cwd()
-    report_path = report.save_to_file(base_path)
+    report_paths = report.save_to_file(base_path)
     
-    print(f"\n📊 Report saved: {report_path}")
-    return report_path
+    print(f"\n📊 Reports saved:")
+    print(f"   JSON: {report_paths['json']}")
+    print(f"   Markdown: {report_paths['markdown']}")
+    return report_paths
 
 
 def extract_model_name_from_url(server_url: str, evaluator: ServerEvaluator = None) -> str:

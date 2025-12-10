@@ -129,16 +129,176 @@ class EvaluationReport(BaseModel):
         model_dir = base_path / "reports" / clean_model_name
         model_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create filename with timestamp
+        # Create filenames with timestamp
         timestamp_str = self.timestamp.strftime("%Y%m%d_%H%M%S")
-        filename = f"report_{timestamp_str}.json"
-        filepath = model_dir / filename
+        json_filename = f"report_{timestamp_str}.json"
+        md_filename = f"report_{timestamp_str}.md"
+        json_filepath = model_dir / json_filename
+        md_filepath = model_dir / md_filename
         
-        # Save to file
-        with open(filepath, 'w') as f:
+        # Save JSON report
+        with open(json_filepath, 'w') as f:
             json.dump(self.model_dump(), f, indent=2, default=str)
         
-        return filepath
+        # Generate and save markdown report
+        markdown_content = self.generate_markdown()
+        with open(md_filepath, 'w') as f:
+            f.write(markdown_content)
+        
+        return {"json": json_filepath, "markdown": md_filepath}
+    
+    def generate_markdown(self) -> str:
+        """Generate a comprehensive markdown report."""
+        lines = []
+        
+        # Header
+        lines.append(f"# Evaluation Report: {self.model_name}")
+        lines.append("")
+        lines.append(f"**Generated:** {self.timestamp.strftime('%B %d, %Y at %I:%M:%S %p')}")
+        lines.append(f"**Model:** `{self.model_name}`")
+        lines.append(f"**Server URL:** {self.server_url or 'N/A'}")
+        lines.append(f"**Evaluation Mode:** {self.evaluation_mode}")
+        if self.test_suite_name:
+            lines.append(f"**Test Suite:** {self.test_suite_name}")
+        lines.append("")
+        
+        # Executive Summary
+        lines.append("## 📊 Executive Summary")
+        lines.append("")
+        
+        # Pass rate with emoji
+        if self.pass_rate >= 90:
+            status_emoji = "🟢"
+        elif self.pass_rate >= 70:
+            status_emoji = "🟡"
+        else:
+            status_emoji = "🔴"
+        
+        lines.append(f"- **Overall Score:** {status_emoji} {self.pass_rate:.1f}% ({self.passed_tests}/{self.total_tests} tests passed)")
+        lines.append(f"- **Total Evaluation Time:** {self.total_evaluation_time_ms:.1f}ms")
+        
+        if self.test_results:
+            avg_time = sum(r.evaluation_time_ms or 0 for r in self.test_results) / len(self.test_results)
+            lines.append(f"- **Average Test Time:** {avg_time:.1f}ms")
+        
+        lines.append("")
+        
+        # Performance by Tag
+        if self.tag_performance:
+            lines.append("## 🏷️ Performance by Category")
+            lines.append("")
+            lines.append("| Category | Passed | Failed | Total | Pass Rate |")
+            lines.append("|----------|--------|--------|-------|-----------|")
+            
+            for tag, perf in sorted(self.tag_performance.items()):
+                pass_rate = (perf["passed"] / perf["total"] * 100) if perf["total"] > 0 else 0
+                if pass_rate >= 90:
+                    emoji = "🟢"
+                elif pass_rate >= 70:
+                    emoji = "🟡"
+                else:
+                    emoji = "🔴"
+                lines.append(f"| {emoji} {tag} | {perf['passed']} | {perf['failed']} | {perf['total']} | {pass_rate:.1f}% |")
+            lines.append("")
+        
+        # Detailed Test Results
+        lines.append("## 📋 Detailed Test Results")
+        lines.append("")
+        
+        # Group by pass/fail
+        passed_tests = [r for r in self.test_results if r.passed]
+        failed_tests = [r for r in self.test_results if not r.passed]
+        
+        if passed_tests:
+            lines.append("### ✅ Passed Tests")
+            lines.append("")
+            for result in passed_tests:
+                lines.append(f"#### {result.test_id}")
+                lines.append("")
+                if result.voice_command:
+                    lines.append(f"**Command:** `{result.voice_command}`")
+                if result.test_description:
+                    lines.append(f"**Description:** {result.test_description}")
+                if result.tags:
+                    lines.append(f"**Tags:** {', '.join(result.tags)}")
+                if result.evaluation_time_ms:
+                    lines.append(f"**Execution Time:** {result.evaluation_time_ms:.1f}ms")
+                
+                lines.append("")
+                lines.append("**Expected Tool Calls:**")
+                for tc in result.expected_tool_calls:
+                    lines.append(f"- `{tc.name}({tc.arguments})`")
+                
+                lines.append("")
+                lines.append("**Predicted Tool Calls:**")
+                for tc in result.predicted_tool_calls:
+                    lines.append(f"- `{tc.name}({tc.arguments})`")
+                
+                lines.append("")
+        
+        if failed_tests:
+            lines.append("### ❌ Failed Tests")
+            lines.append("")
+            for result in failed_tests:
+                lines.append(f"#### {result.test_id}")
+                lines.append("")
+                if result.voice_command:
+                    lines.append(f"**Command:** `{result.voice_command}`")
+                if result.test_description:
+                    lines.append(f"**Description:** {result.test_description}")
+                if result.tags:
+                    lines.append(f"**Tags:** {', '.join(result.tags)}")
+                if result.evaluation_time_ms:
+                    lines.append(f"**Execution Time:** {result.evaluation_time_ms:.1f}ms")
+                
+                if result.error:
+                    lines.append("")
+                    lines.append(f"**Error:** `{result.error}`")
+                
+                lines.append("")
+                lines.append("**Expected Tool Calls:**")
+                for tc in result.expected_tool_calls:
+                    lines.append(f"- `{tc.name}({tc.arguments})`")
+                
+                lines.append("")
+                lines.append("**Predicted Tool Calls:**")
+                if result.predicted_tool_calls:
+                    for tc in result.predicted_tool_calls:
+                        lines.append(f"- `{tc.name}({tc.arguments})`")
+                else:
+                    lines.append("- *No tool calls predicted*")
+                
+                lines.append("")
+        
+        # Error Summary
+        if self.errors:
+            lines.append("## ⚠️ Errors Encountered")
+            lines.append("")
+            for i, error in enumerate(self.errors, 1):
+                lines.append(f"{i}. `{error}`")
+            lines.append("")
+        
+        # Technical Details
+        lines.append("## 🔧 Technical Details")
+        lines.append("")
+        lines.append("| Metric | Value |")
+        lines.append("|--------|-------|")
+        lines.append(f"| Model Name | `{self.model_name}` |")
+        lines.append(f"| Server URL | {self.server_url or 'N/A'} |")
+        lines.append(f"| Evaluation Mode | {self.evaluation_mode} |")
+        lines.append(f"| Timestamp | {self.timestamp.isoformat()} |")
+        lines.append(f"| Total Tests | {self.total_tests} |")
+        lines.append(f"| Passed Tests | {self.passed_tests} |")
+        lines.append(f"| Failed Tests | {self.failed_tests} |")
+        lines.append(f"| Pass Rate | {self.pass_rate:.2f}% |")
+        lines.append(f"| Total Time | {self.total_evaluation_time_ms:.1f}ms |")
+        lines.append("")
+        
+        # Footer
+        lines.append("---")
+        lines.append("*This report was automatically generated by Sledge Eval*")
+        
+        return "\n".join(lines)
 
 
 class Evaluator:
