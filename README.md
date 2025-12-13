@@ -51,11 +51,11 @@ Runs the tests against a llama.cpp server you setup to run at localhost:8080
 - mistralai/Ministral-3-3B-Reasoning-2512-GGUF
 - mistralai/Ministral-3-14B-Reasoning-2512-GGUF
 
+- Qwen/Qwen3-VL-8B-Instruct-GGUF
+- Qwen/Qwen3-VL-8B-Thinking-GGUF
 
 #TODO 
 
-- Update command line args to be more useful/flexible
-- Update it to log results in a format useful for longterm comparison
 - Add test cases written by a human
 - Experiment with how different tool suites effect performance.
 

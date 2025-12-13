@@ -34,12 +34,39 @@ class VoiceCommandTest(BaseModel):
     )
 
 
+class TextEvaluationTest(BaseModel):
+    """Represents a single text evaluation test case."""
+
+    id: str = Field(..., description="Unique identifier for the test case")
+    question: str = Field(..., description="The question to ask the model")
+    expected_answer: str = Field(..., description="Expected text answer")
+    description: Optional[str] = Field(
+        None, description="Optional description of what this test validates"
+    )
+    tags: List[str] = Field(
+        default_factory=list, description="Tags for categorizing tests"
+    )
+    evaluation_type: str = Field(
+        default="contains", description="Type of evaluation: contains, exact, custom"
+    )
+
+
 class TestSuite(BaseModel):
     """A collection of voice command tests."""
 
     name: str = Field(..., description="Name of the test suite")
     description: Optional[str] = Field(None, description="Test suite description")
     tests: List[VoiceCommandTest] = Field(
+        default_factory=list, description="List of test cases"
+    )
+
+
+class TextEvaluationSuite(BaseModel):
+    """A collection of text evaluation tests."""
+
+    name: str = Field(..., description="Name of the test suite")
+    description: Optional[str] = Field(None, description="Test suite description")
+    tests: List[TextEvaluationTest] = Field(
         default_factory=list, description="List of test cases"
     )
 
@@ -58,6 +85,23 @@ class EvaluationResult(BaseModel):
     voice_command: Optional[str] = None
     test_description: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
+
+
+class TextEvaluationResult(BaseModel):
+    """Result of evaluating a single text evaluation test case."""
+
+    test_id: str
+    passed: bool
+    predicted_answer: str
+    expected_answer: str
+    question: str
+    error: Optional[str] = None
+    evaluation_time_ms: Optional[float] = Field(
+        None, description="Time taken for evaluation in milliseconds"
+    )
+    test_description: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+    evaluation_type: str = Field(default="contains")
 
 
 class EvaluationReport(BaseModel):

@@ -7,14 +7,25 @@ from .evaluator import (
     TestSuite,
     ToolCall,
     VoiceCommandTest,
+    TextEvaluationTest,
+    TextEvaluationSuite,
+    TextEvaluationResult,
 )
-from .ministral_evaluator import MinistralEvaluator
+# Optional imports for evaluators with dependencies
+try:
+    from .ministral_evaluator import MinistralEvaluator
+except ImportError:
+    MinistralEvaluator = None
+
 from .server_evaluator import ServerEvaluator
 from .anki_evaluator import AnkiLargeToolSetEvaluator
+from .text_evaluator import TextEvaluator
+from .text_server_evaluator import TextServerEvaluator
 from .hardware_detector import HardwareInfo, HardwareDetector
 
 __version__ = "0.1.0"
 
+# Build __all__ dynamically based on what was successfully imported
 __all__ = [
     "AnkiLargeToolSetEvaluator",
     "EvaluationReport",
@@ -22,9 +33,17 @@ __all__ = [
     "Evaluator",
     "HardwareDetector",
     "HardwareInfo",
-    "MinistralEvaluator",
     "ServerEvaluator",
     "TestSuite",
+    "TextEvaluationTest",
+    "TextEvaluationSuite", 
+    "TextEvaluationResult",
+    "TextEvaluator",
+    "TextServerEvaluator",
     "ToolCall",
     "VoiceCommandTest",
 ]
+
+# Add MinistralEvaluator to __all__ only if it was successfully imported
+if MinistralEvaluator is not None:
+    __all__.append("MinistralEvaluator")

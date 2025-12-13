@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 from src.sledge_eval import ServerEvaluator, VoiceCommandTest, ToolCall, EvaluationReport, AnkiLargeToolSetEvaluator
+from src.sledge_eval.text_server_evaluator import TextServerEvaluator
 from src.sledge_eval.hardware_detector import HardwareDetector
 
 
@@ -520,6 +521,57 @@ def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, m
         print("⚠️ Warning: Anki test suite not found - skipping large toolset tests")
         print(f"   Expected: {anki_test_file}")
 
+    # 5. Run text evaluation tests
+    print(f"\n📋 SECTION 5: Text Evaluation Tests")
+    print("-" * 40)
+    
+    # Initialize text evaluator
+    text_evaluator = TextServerEvaluator(server_url=server_url)
+    
+    # Load text evaluation test suite
+    text_test_file = Path("tests/test_data/letter_counting_suite.json")
+    
+    if text_test_file.exists():
+        try:
+            text_test_suite = text_evaluator.load_text_test_suite(text_test_file)
+            print(f"Loaded: {text_test_suite.name} ({len(text_test_suite.tests)} tests)")
+            
+            for test in text_test_suite.tests:
+                print(f"🧪 Test: {test.id}")
+                print(f"   Question: '{test.question}'")
+                result = text_evaluator.evaluate_text_test(test)
+                
+                # Convert TextEvaluationResult to EvaluationResult for compatibility
+                from src.sledge_eval.evaluator import EvaluationResult
+                eval_result = EvaluationResult(
+                    test_id=result.test_id,
+                    passed=result.passed,
+                    predicted_tool_calls=[],  # Empty for text evaluations
+                    expected_tool_calls=[],   # Empty for text evaluations
+                    error=result.error,
+                    evaluation_time_ms=result.evaluation_time_ms,
+                    voice_command=result.question,  # Use question as voice_command
+                    test_description=result.test_description,
+                    tags=result.tags
+                )
+                all_results.append(eval_result)
+                
+                status = "PASS ✓" if result.passed else "FAIL ✗"
+                time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+                print(f"   Result: {status} ({time_str})")
+                if result.passed:
+                    print(f"   Answer: '{result.predicted_answer}'")
+                else:
+                    print(f"   Expected: '{result.expected_answer}'")
+                    print(f"   Got: '{result.predicted_answer}'")
+                
+        except Exception as e:
+            print(f"⚠️ Warning: Could not run text evaluation tests: {e}")
+            print("   Continuing with other tests...")
+    else:
+        print("⚠️ Warning: Text evaluation test suite not found - skipping text evaluation tests")
+        print(f"   Expected: {text_test_file}")
+
     # Summary
     total_time = (time.time() - total_start_time) * 1000
     passed_count = sum(1 for r in all_results if r.passed)
@@ -774,6 +826,122 @@ def run_custom_tools(server_url: str, debug: bool = False, model_name: str = Non
     return result.passed
 
 
+def run_text_evaluation(server_url: str, test_file: str = None, debug: bool = False, model_name: str = None):
+    """Run text evaluation tests."""
+    print("=" * 80)
+    print("TEXT EVALUATION (Server)")
+    print("=" * 80)
+    
+    # Initialize text evaluator
+    print(f"\nConnecting to llama-server at: {server_url}")
+    if debug:
+        print("🐛 Debug mode enabled")
+    
+    text_evaluator = TextServerEvaluator(server_url=server_url)
+    
+    # Check server health
+    if not text_evaluator.health_check():
+        print("❌ Server is not responding. Make sure llama-server is running.")
+        print(f"   Base URL: {server_url}")
+        return False
+    
+    print("✅ Server is responding!")
+    
+    # Load text evaluation test suite
+    if test_file is None:
+        test_file = Path("tests/test_data/letter_counting_suite.json")
+    else:
+        test_file = Path(test_file)
+    
+    if not test_file.exists():
+        print(f"❌ Test file not found: {test_file}")
+        return False
+    
+    try:
+        text_test_suite = text_evaluator.load_text_test_suite(test_file)
+        print(f"\nLoaded: {text_test_suite.name} ({len(text_test_suite.tests)} tests)")
+        if text_test_suite.description:
+            print(f"Description: {text_test_suite.description}")
+        
+        results = []
+        
+        print("\n" + "-" * 60)
+        print("RUNNING TEXT EVALUATION TESTS")
+        print("-" * 60)
+        
+        for i, test in enumerate(text_test_suite.tests, 1):
+            print(f"\n🧪 Test {i}/{len(text_test_suite.tests)}: {test.id}")
+            print(f"   Question: '{test.question}'")
+            print(f"   Expected: '{test.expected_answer}'")
+            
+            result = text_evaluator.evaluate_text_test(test)
+            results.append(result)
+            
+            status = "PASS ✓" if result.passed else "FAIL ✗"
+            time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+            print(f"   Result: {status} ({time_str})")
+            print(f"   Answer: '{result.predicted_answer}'")
+            
+            if not result.passed:
+                print(f"   ❌ Expected '{result.expected_answer}' but got '{result.predicted_answer}'")
+            
+            if result.error:
+                print(f"   ⚠️  Error: {result.error}")
+        
+        # Summary
+        passed_count = sum(1 for r in results if r.passed)
+        total_count = len(results)
+        pass_rate = (passed_count / total_count * 100) if total_count > 0 else 0
+        total_time = sum(r.evaluation_time_ms or 0 for r in results)
+        
+        print("\n" + "=" * 80)
+        print("TEXT EVALUATION RESULTS")
+        print("=" * 80)
+        
+        print(f"\n📊 Statistics:")
+        print(f"   Tests Passed: {passed_count}/{total_count} ({pass_rate:.1f}%)")
+        print(f"   Total Time: {total_time:.1f}ms")
+        
+        if results:
+            avg_time = total_time / len(results)
+            print(f"   Average Test Time: {avg_time:.1f}ms")
+        
+        print(f"\n📋 Individual Results:")
+        for result in results:
+            status = "PASS ✓" if result.passed else "FAIL ✗"
+            time_str = f"({result.evaluation_time_ms:.1f}ms)" if result.evaluation_time_ms else "(N/A)"
+            print(f"   {status} {result.test_id} {time_str}")
+            if not result.passed:
+                print(f"      Expected: '{result.expected_answer}'")
+                print(f"      Got: '{result.predicted_answer}'")
+        
+        # Generate report
+        if model_name is None:
+            model_name = extract_model_name_from_url(server_url, text_evaluator)
+        
+        report = text_evaluator.create_text_evaluation_report(
+            results=results,
+            model_name=model_name,
+            test_suite_name=text_test_suite.name,
+            evaluation_mode="text_evaluation"
+        )
+        
+        file_paths = report.save_to_file(Path("."))
+        print(f"\n📄 Reports saved:")
+        print(f"   • JSON: {file_paths['json']}")
+        print(f"   • Markdown: {file_paths['markdown']}")
+        
+        print("=" * 80)
+        return passed_count == total_count
+        
+    except Exception as e:
+        print(f"❌ Text evaluation failed: {e}")
+        if debug:
+            import traceback
+            traceback.print_exc()
+        return False
+
+
 def main():
     """Main entry point for sledge-eval server CLI."""
     parser = argparse.ArgumentParser(
@@ -799,9 +967,9 @@ def main():
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["single", "suite", "custom", "all", "anki"],
+        choices=["single", "suite", "custom", "all", "anki", "text"],
         default="all",
-        help="Evaluation mode: single test, test suite, custom tools, all tests combined, or anki large toolset (default: all)",
+        help="Evaluation mode: single test, test suite, custom tools, all tests combined, anki large toolset, or text evaluation (default: all)",
     )
     parser.add_argument(
         "--timeout",
@@ -846,6 +1014,8 @@ def main():
             success = run_custom_tools(server_url, args.debug, args.model_name)
         elif args.mode == "anki":
             success = run_anki_large_toolset(server_url, args.debug, args.model_name)
+        elif args.mode == "text":
+            success = run_text_evaluation(server_url, args.test_suite, args.debug, args.model_name)
         elif args.mode == "all":
             success = run_all_tests(server_url, args.test_suite, args.debug, args.model_name)
 

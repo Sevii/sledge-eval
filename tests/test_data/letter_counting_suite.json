@@ -1,0 +1,28 @@
+{
+  "name": "Letter Counting Tests",
+  "description": "Test suite for evaluating letter counting abilities",
+  "tests": [
+    {
+      "id": "letter_count_001",
+      "question": "How many times does the letter 'r' appear in the word 'strawberry'?",
+      "expected_answer": "3",
+      "description": "Count occurrences of letter 'r' in 'strawberry'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ],
+      "evaluation_type": "letter_count"
+    },
+    {
+      "id": "letter_count_002",
+      "question": "How many times does the letter 'l' appear in the word 'parallel'?",
+      "expected_answer": "3",
+      "description": "Count occurrences of letter 'l' in 'parallel'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ],
+      "evaluation_type": "letter_count"
+    }
+  ]
+}

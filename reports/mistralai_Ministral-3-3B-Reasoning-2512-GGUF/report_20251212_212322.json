@@ -1,0 +1,818 @@
+{
+  "timestamp": "2025-12-12 21:23:22.109979",
+  "model_name": "\"mistralai/Ministral-3-3B-Reasoning-2512-GGUF\"",
+  "server_url": "http://localhost:8080",
+  "evaluation_mode": "all",
+  "test_suite_name": null,
+  "hardware_info": {
+    "gpu_name": "Apple M3",
+    "gpu_family": "MTLGPUFamilyApple9",
+    "metal_backend": true,
+    "has_unified_memory": true,
+    "has_bfloat": true,
+    "has_tensor": false,
+    "recommended_max_working_set_size_mb": 17179.89,
+    "total_memory_mb": null,
+    "free_memory_mb": null,
+    "model_memory_mb": null,
+    "context_memory_mb": null,
+    "compute_memory_mb": null,
+    "gpu_memory_mb": 17179.89,
+    "n_threads": null,
+    "n_threads_batch": null,
+    "total_threads": null,
+    "http_server_threads": null,
+    "model_size_gb": null,
+    "model_params_b": null,
+    "context_size": null,
+    "batch_size": null,
+    "os_name": "Darwin",
+    "os_version": "23.6.0",
+    "architecture": "arm64",
+    "processor": "arm",
+    "llama_cpp_build": null,
+    "llama_cpp_commit": null,
+    "compiler": null
+  },
+  "total_tests": 20,
+  "passed_tests": 3,
+  "failed_tests": 17,
+  "pass_rate": 15.0,
+  "total_evaluation_time_ms": 114683.1386089325,
+  "test_results": [
+    {
+      "test_id": "single_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 5532.137870788574,
+      "voice_command": "Turn on the living room lights",
+      "test_description": "Simple light control command",
+      "tags": [
+        "lights",
+        "smart_home"
+      ]
+    },
+    {
+      "test_id": "test_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 2038.9649868011475,
+      "voice_command": "Turn on the living room lights",
+      "test_description": "Simple command to turn on lights in a specific room",
+      "tags": [
+        "smart_home",
+        "lights",
+        "basic"
+      ]
+    },
+    {
+      "test_id": "test_002",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 3284.000873565674,
+      "voice_command": "Set the thermostat to 72 degrees",
+      "test_description": "Command to adjust temperature",
+      "tags": [
+        "smart_home",
+        "thermostat",
+        "basic"
+      ]
+    },
+    {
+      "test_id": "test_003",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "playlist": "workout"
+          }
+        },
+        {
+          "name": "adjust_volume",
+          "arguments": {
+            "action": "increase"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 5817.542791366577,
+      "voice_command": "Play my workout playlist and turn up the volume",
+      "test_description": "Multi-action command requiring multiple tool calls",
+      "tags": [
+        "music",
+        "multi_action"
+      ]
+    },
+    {
+      "test_id": "test_004",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "timeframe": "today"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 1798.4662055969238,
+      "voice_command": "What's the weather like today?",
+      "test_description": "Information query requiring weather API call",
+      "tags": [
+        "weather",
+        "query"
+      ]
+    },
+    {
+      "test_id": "custom_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "send_email",
+          "arguments": {
+            "to": "john@example.com",
+            "subject": "Meeting Tomorrow"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 2482.714891433716,
+      "voice_command": "Send an email to john@example.com with subject 'Meeting Tomorrow'",
+      "test_description": null,
+      "tags": []
+    },
+    {
+      "test_id": "anki_basic_001",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "list_decks",
+          "arguments": {
+            "include_stats": true
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "list_decks",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 17697.06702232361,
+      "voice_command": "Show me all my Anki decks",
+      "test_description": "Basic tool selection from large set - simple deck listing",
+      "tags": [
+        "anki",
+        "basic",
+        "large_toolset",
+        "deck_management"
+      ]
+    },
+    {
+      "test_id": "anki_basic_002",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "create_deck",
+          "arguments": {
+            "deck_name": "Spanish Vocabulary"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "create_deck",
+          "arguments": {
+            "deck_name": "Spanish Vocabulary"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 5186.783075332642,
+      "voice_command": "Create a new deck called Spanish Vocabulary",
+      "test_description": "Basic tool selection with parameters from large set",
+      "tags": [
+        "anki",
+        "basic",
+        "large_toolset",
+        "deck_creation"
+      ]
+    },
+    {
+      "test_id": "anki_intermediate_001",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "sync",
+          "arguments": {}
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "sync",
+          "arguments": {}
+        },
+        {
+          "name": "get_due_cards",
+          "arguments": {
+            "deck_name": "Spanish"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 3540.152072906494,
+      "voice_command": "Start a review session for my Spanish deck",
+      "test_description": "Multi-step workflow requiring correct tool sequence",
+      "tags": [
+        "anki",
+        "intermediate",
+        "large_toolset",
+        "review_workflow",
+        "multi_step"
+      ]
+    },
+    {
+      "test_id": "anki_intermediate_002",
+      "passed": true,
+      "predicted_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:French tag:vocabulary"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:French tag:vocabulary"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 4602.676868438721,
+      "voice_command": "Find all notes tagged with vocabulary in my French deck",
+      "test_description": "Complex query construction with Anki search syntax",
+      "tags": [
+        "anki",
+        "intermediate",
+        "large_toolset",
+        "search",
+        "query_syntax"
+      ]
+    },
+    {
+      "test_id": "anki_advanced_001",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "modelFieldNames",
+          "arguments": {
+            "modelName": "Basic"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "addNote",
+          "arguments": {
+            "deckName": "Spanish",
+            "modelName": "Basic",
+            "fields": {
+              "Front": "Hola",
+              "Back": "Hello"
+            }
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 4407.627105712891,
+      "voice_command": "Add a new flashcard with front 'Hola' and back 'Hello' to my Spanish deck using the Basic note type",
+      "test_description": "Complex tool call with nested object parameters",
+      "tags": [
+        "anki",
+        "advanced",
+        "large_toolset",
+        "note_creation",
+        "complex_parameters"
+      ]
+    },
+    {
+      "test_id": "anki_advanced_002",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "modelNames",
+          "arguments": {}
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "modelNames",
+          "arguments": {}
+        },
+        {
+          "name": "modelFieldNames",
+          "arguments": {
+            "modelName": "Basic"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 3119.2431449890137,
+      "voice_command": "Show me what note types are available and then show me the fields for the Basic note type",
+      "test_description": "Sequential tool calls with dependency between calls",
+      "tags": [
+        "anki",
+        "advanced",
+        "large_toolset",
+        "model_introspection",
+        "sequential"
+      ]
+    },
+    {
+      "test_id": "anki_expert_001",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:Japanese::sushi"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "findNotes",
+          "arguments": {
+            "query": "deck:Japanese front:sushi OR back:sushi"
+          }
+        },
+        {
+          "name": "notesInfo",
+          "arguments": {
+            "notes": []
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 3835.7880115509033,
+      "voice_command": "Find all notes in my Japanese deck that contain the word 'sushi', then get detailed information about those notes",
+      "test_description": "Complex workflow with dependent tool calls and advanced query",
+      "tags": [
+        "anki",
+        "expert",
+        "large_toolset",
+        "complex_workflow",
+        "dependent_calls"
+      ]
+    },
+    {
+      "test_id": "anki_edge_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "deleteNotes",
+          "arguments": {
+            "notes": [
+              12345
+            ],
+            "confirmDeletion": true
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 2726.9160747528076,
+      "voice_command": "Delete the note with ID 12345 permanently",
+      "test_description": "High-risk tool selection with critical confirmation parameter",
+      "tags": [
+        "anki",
+        "edge_case",
+        "large_toolset",
+        "destructive_action",
+        "confirmation"
+      ]
+    },
+    {
+      "test_id": "anki_context_001",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_due_cards",
+          "arguments": {
+            "deck_name": "Math",
+            "limit": 1000000000000000
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "sync",
+          "arguments": {}
+        },
+        {
+          "name": "get_due_cards",
+          "arguments": {
+            "deck_name": "Math"
+          }
+        },
+        {
+          "name": "present_card",
+          "arguments": {
+            "card_id": 0,
+            "show_answer": false
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 5645.478963851929,
+      "voice_command": "I want to study my cards. Get me some cards to review from my Math deck and show me the first one",
+      "test_description": "Context-aware workflow understanding study session requirements",
+      "tags": [
+        "anki",
+        "context_aware",
+        "large_toolset",
+        "study_session",
+        "workflow"
+      ]
+    },
+    {
+      "test_id": "anki_precision_001",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "list_decks",
+          "arguments": {
+            "include_stats": true
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "guiDeckOverview",
+          "arguments": {
+            "name": "German"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 4319.046974182129,
+      "voice_command": "Show me the deck overview for my German deck",
+      "test_description": "Precise tool selection among many similar GUI tools",
+      "tags": [
+        "anki",
+        "precision",
+        "large_toolset",
+        "gui_tools",
+        "disambiguation"
+      ]
+    },
+    {
+      "test_id": "anki_ambiguity_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "get_due_cards",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 7240.625858306885,
+      "voice_command": "I want to see my cards",
+      "test_description": "Handling ambiguous commands with reasonable defaults",
+      "tags": [
+        "anki",
+        "ambiguous",
+        "large_toolset",
+        "default_behavior"
+      ]
+    },
+    {
+      "test_id": "anki_parameter_complex_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "updateNoteFields",
+          "arguments": {
+            "note": {
+              "id": 54321,
+              "fields": {
+                "Front": "Buenos d\u00edas"
+              }
+            }
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 11019.237995147705,
+      "voice_command": "Update the front field of note 54321 to say 'Buenos d\u00edas' instead",
+      "test_description": "Complex nested parameter structure handling",
+      "tags": [
+        "anki",
+        "complex_parameters",
+        "large_toolset",
+        "nested_objects"
+      ]
+    },
+    {
+      "test_id": "letter_count_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 10711.459875106812,
+      "voice_command": "How many times does the letter 'r' appear in the word 'strawberry'?",
+      "test_description": "Count occurrences of letter 'r' in 'strawberry'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ]
+    },
+    {
+      "test_id": "letter_count_002",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 9677.207946777344,
+      "voice_command": "How many times does the letter 'l' appear in the word 'parallel'?",
+      "test_description": "Count occurrences of letter 'l' in 'parallel'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ]
+    }
+  ],
+  "errors": [],
+  "tags_tested": [
+    "lights",
+    "smart_home",
+    "basic",
+    "thermostat",
+    "music",
+    "multi_action",
+    "weather",
+    "query",
+    "anki",
+    "large_toolset",
+    "deck_management",
+    "deck_creation",
+    "intermediate",
+    "review_workflow",
+    "multi_step",
+    "search",
+    "query_syntax",
+    "advanced",
+    "note_creation",
+    "complex_parameters",
+    "model_introspection",
+    "sequential",
+    "expert",
+    "complex_workflow",
+    "dependent_calls",
+    "edge_case",
+    "destructive_action",
+    "confirmation",
+    "context_aware",
+    "study_session",
+    "workflow",
+    "precision",
+    "gui_tools",
+    "disambiguation",
+    "ambiguous",
+    "default_behavior",
+    "nested_objects",
+    "letter_counting"
+  ],
+  "tag_performance": {
+    "lights": {
+      "passed": 0,
+      "failed": 2,
+      "total": 2
+    },
+    "smart_home": {
+      "passed": 0,
+      "failed": 3,
+      "total": 3
+    },
+    "basic": {
+      "passed": 2,
+      "failed": 4,
+      "total": 6
+    },
+    "thermostat": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "music": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "multi_action": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "weather": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "query": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "anki": {
+      "passed": 3,
+      "failed": 9,
+      "total": 12
+    },
+    "large_toolset": {
+      "passed": 3,
+      "failed": 9,
+      "total": 12
+    },
+    "deck_management": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "deck_creation": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "intermediate": {
+      "passed": 1,
+      "failed": 1,
+      "total": 2
+    },
+    "review_workflow": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "multi_step": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "search": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "query_syntax": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "advanced": {
+      "passed": 0,
+      "failed": 2,
+      "total": 2
+    },
+    "note_creation": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "complex_parameters": {
+      "passed": 0,
+      "failed": 2,
+      "total": 2
+    },
+    "model_introspection": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "sequential": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "expert": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "complex_workflow": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "dependent_calls": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "edge_case": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "destructive_action": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "confirmation": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "context_aware": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "study_session": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "workflow": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "precision": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "gui_tools": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "disambiguation": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "ambiguous": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "default_behavior": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "nested_objects": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "letter_counting": {
+      "passed": 0,
+      "failed": 2,
+      "total": 2
+    }
+  }
+}
