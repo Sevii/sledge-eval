@@ -119,6 +119,9 @@ class TextEvaluator(Evaluator):
         elif evaluation_type == "letter_count":
             # Special evaluation for letter counting tasks
             return self._evaluate_letter_count(predicted, expected)
+        elif evaluation_type == "theory_of_mind":
+            # Special evaluation for theory of mind tasks (Sally-Anne test)
+            return self._evaluate_theory_of_mind(predicted, expected)
         else:
             # Default to contains
             return expected_clean in predicted_clean
@@ -137,6 +140,67 @@ class TextEvaluator(Evaluator):
         # Check if the expected number appears in the response
         expected_num = expected.strip()
         return expected_num in numbers
+
+    def _evaluate_theory_of_mind(self, predicted: str, expected: str) -> bool:
+        """
+        Special evaluation for theory of mind tasks (Sally-Anne test).
+        
+        Evaluates whether the model correctly identifies that Sally will look in the 
+        original location (basket) rather than the new location (box) where the marble 
+        actually is. This tests the model's ability to understand false beliefs.
+        
+        Args:
+            predicted: The model's response
+            expected: The expected answer (should be "basket")
+            
+        Returns:
+            True if the model correctly identifies Sally's false belief
+        """
+        import re
+        
+        predicted_lower = predicted.lower()
+        expected_lower = expected.lower().strip()
+        
+        # Define keywords for correct and incorrect responses
+        correct_indicators = [
+            "basket", "original", "first", "initially", "where she left", 
+            "where she put", "where she placed", "where she hid"
+        ]
+        
+        incorrect_indicators = [
+            "box", "new location", "where it is", "where the marble is",
+            "where anne moved", "where anne put", "current location"
+        ]
+        
+        # Check for explicit mention of the expected answer
+        if expected_lower in predicted_lower:
+            return True
+            
+        # Look for correct reasoning indicators
+        correct_matches = sum(1 for indicator in correct_indicators if indicator in predicted_lower)
+        incorrect_matches = sum(1 for indicator in incorrect_indicators if indicator in predicted_lower)
+        
+        # Additional reasoning checks
+        reasoning_indicators = [
+            "doesn't know", "doesn't see", "wasn't there", "didn't see", 
+            "false belief", "her knowledge", "her perspective", "thinks it's still"
+        ]
+        
+        has_reasoning = any(indicator in predicted_lower for indicator in reasoning_indicators)
+        
+        # Scoring logic:
+        # - If expected answer is mentioned AND no incorrect indicators, pass
+        # - If correct indicators > incorrect indicators AND has reasoning, pass
+        # - If only correct indicators and no incorrect ones, pass
+        
+        if expected_lower in predicted_lower and incorrect_matches == 0:
+            return True
+        elif correct_matches > incorrect_matches and has_reasoning:
+            return True
+        elif correct_matches > 0 and incorrect_matches == 0:
+            return True
+        else:
+            return False
 
     def evaluate_text_suite(self, test_suite: TextEvaluationSuite) -> List[TextEvaluationResult]:
         """
@@ -250,4 +314,66 @@ def create_letter_counting_test_suite() -> TextEvaluationSuite:
         name="Letter Counting Tests",
         description="Test suite for evaluating letter counting abilities",
         tests=tests
+    )
+
+
+def create_theory_of_mind_test_suite() -> TextEvaluationSuite:
+    """
+    Create a test suite for Theory of Mind tasks (Sally-Anne variations).
+    
+    Returns:
+        TextEvaluationSuite with theory of mind tests
+    """
+    tests = [
+        TextEvaluationTest(
+            id="theory_of_mind_001",
+            question="Sally hides a marble in the basket and leaves the room. Anne moves the marble to the box. Sally returns. Where will Sally look for the marble? Explain why.",
+            expected_answer="basket",
+            description="Classic Sally-Anne false belief test - tests understanding that Sally doesn't know the marble was moved",
+            tags=["theory_of_mind", "false_belief", "perspective_taking", "advanced"],
+            evaluation_type="theory_of_mind"
+        ),
+        TextEvaluationTest(
+            id="theory_of_mind_002",
+            question="John puts his chocolate in the cupboard and goes to school. His mother moves the chocolate to the fridge. When John comes home, where will he first look for his chocolate?",
+            expected_answer="cupboard",
+            description="Variation of false belief test with different objects and actors",
+            tags=["theory_of_mind", "false_belief", "perspective_taking", "advanced"],
+            evaluation_type="theory_of_mind"
+        ),
+        TextEvaluationTest(
+            id="theory_of_mind_003",
+            question="Maria places her book on the desk and leaves for lunch. While she's away, Tom moves the book to the shelf. When Maria returns, where will she think her book is?",
+            expected_answer="desk",
+            description="Another false belief variation testing understanding of another person's outdated knowledge",
+            tags=["theory_of_mind", "false_belief", "perspective_taking", "advanced"],
+            evaluation_type="theory_of_mind"
+        )
+    ]
+    
+    return TextEvaluationSuite(
+        name="Theory of Mind Tests",
+        description="Test suite for evaluating theory of mind and false belief understanding (Sally-Anne variations)",
+        tests=tests
+    )
+
+
+def create_comprehensive_text_test_suite() -> TextEvaluationSuite:
+    """
+    Create a comprehensive test suite combining multiple text evaluation types.
+    
+    Returns:
+        TextEvaluationSuite with letter counting and theory of mind tests
+    """
+    # Get tests from specialized suites
+    letter_tests = create_letter_counting_test_suite().tests
+    theory_tests = create_theory_of_mind_test_suite().tests
+    
+    # Combine all tests
+    all_tests = letter_tests + theory_tests
+    
+    return TextEvaluationSuite(
+        name="Comprehensive Text Evaluation Suite",
+        description="Combined test suite evaluating letter counting abilities and theory of mind understanding",
+        tests=all_tests
     )

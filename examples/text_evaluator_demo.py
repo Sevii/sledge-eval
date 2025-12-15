@@ -20,58 +20,13 @@ from sledge_eval import (
     TextEvaluationTest,
     TextEvaluationSuite,
 )
+from sledge_eval.text_evaluator import create_comprehensive_text_test_suite
 
 
-def create_letter_counting_suite() -> TextEvaluationSuite:
-    """Create a comprehensive letter counting test suite."""
-    tests = [
-        TextEvaluationTest(
-            id="letter_count_001",
-            question="How many times does the letter 'r' appear in the word 'strawberry'?",
-            expected_answer="3",
-            description="Count occurrences of letter 'r' in 'strawberry'",
-            tags=["letter_counting", "basic"],
-            evaluation_type="letter_count"
-        ),
-        TextEvaluationTest(
-            id="letter_count_002",
-            question="How many times does the letter 'l' appear in the word 'parallel'?",
-            expected_answer="3",
-            description="Count occurrences of letter 'l' in 'parallel'",
-            tags=["letter_counting", "basic"],
-            evaluation_type="letter_count"
-        ),
-        TextEvaluationTest(
-            id="letter_count_003",
-            question="How many times does the letter 'e' appear in the word 'development'?",
-            expected_answer="4",
-            description="Count occurrences of letter 'e' in 'development'",
-            tags=["letter_counting", "medium"],
-            evaluation_type="letter_count"
-        ),
-        TextEvaluationTest(
-            id="letter_count_004",
-            question="How many times does the letter 's' appear in the word 'assessment'?",
-            expected_answer="4",
-            description="Count occurrences of letter 's' in 'assessment'",
-            tags=["letter_counting", "medium"],
-            evaluation_type="letter_count"
-        ),
-        TextEvaluationTest(
-            id="letter_count_005",
-            question="How many times does the letter 'i' appear in the word 'Mississippi'?",
-            expected_answer="4",
-            description="Count occurrences of letter 'i' in 'Mississippi'",
-            tags=["letter_counting", "hard"],
-            evaluation_type="letter_count"
-        )
-    ]
-    
-    return TextEvaluationSuite(
-        name="Letter Counting Evaluation",
-        description="Comprehensive test suite for evaluating letter counting abilities in language models",
-        tests=tests
-    )
+def create_demo_comprehensive_suite() -> TextEvaluationSuite:
+    """Create a demo comprehensive test suite with both letter counting and theory of mind tests."""
+    # Use the pre-built comprehensive suite
+    return create_comprehensive_text_test_suite()
 
 
 def save_test_suite(suite: TextEvaluationSuite, output_path: Path):
@@ -131,7 +86,7 @@ def run_evaluation(server_url: str, test_suite: TextEvaluationSuite):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Text Evaluator Demo")
+    parser = argparse.ArgumentParser(description="Text Evaluator Demo - Letter Counting and Theory of Mind")
     parser.add_argument(
         "--server-url",
         default="http://localhost:8080",
@@ -144,14 +99,26 @@ def main():
     )
     parser.add_argument(
         "--suite-path",
-        default="tests/test_data/letter_counting_suite.json",
+        default="tests/test_data/comprehensive_text_suite.json",
         help="Path to save/load test suite"
     )
     
     args = parser.parse_args()
     
+    print("🧠 Text Evaluation Demo - Letter Counting & Theory of Mind")
+    print("=" * 60)
+    
     # Create test suite
-    test_suite = create_letter_counting_suite()
+    test_suite = create_demo_comprehensive_suite()
+    print(f"📝 Created test suite with {len(test_suite.tests)} tests:")
+    
+    # Count tests by type
+    letter_tests = [t for t in test_suite.tests if "letter_counting" in t.tags]
+    theory_tests = [t for t in test_suite.tests if "theory_of_mind" in t.tags]
+    
+    print(f"   • Letter Counting Tests: {len(letter_tests)}")
+    print(f"   • Theory of Mind Tests: {len(theory_tests)}")
+    print()
     
     # Save test suite if requested
     if args.save_suite:

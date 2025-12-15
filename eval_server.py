@@ -529,7 +529,7 @@ def run_all_tests(server_url: str, test_file: str = None, debug: bool = False, m
     text_evaluator = TextServerEvaluator(server_url=server_url)
     
     # Load text evaluation test suite
-    text_test_file = Path("tests/test_data/letter_counting_suite.json")
+    text_test_file = Path("tests/test_data/comprehensive_text_suite.json")
     
     if text_test_file.exists():
         try:
@@ -849,7 +849,7 @@ def run_text_evaluation(server_url: str, test_file: str = None, debug: bool = Fa
     
     # Load text evaluation test suite
     if test_file is None:
-        test_file = Path("tests/test_data/letter_counting_suite.json")
+        test_file = Path("tests/test_data/comprehensive_text_suite.json")
     else:
         test_file = Path(test_file)
     

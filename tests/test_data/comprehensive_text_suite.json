@@ -1,0 +1,78 @@
+{
+  "name": "Comprehensive Text Evaluation Suite",
+  "description": "Combined test suite evaluating letter counting abilities and theory of mind understanding",
+  "tests": [
+    {
+      "id": "letter_count_001",
+      "question": "How many times does the letter 'r' appear in the word 'strawberry'?",
+      "expected_answer": "3",
+      "description": "Count occurrences of letter 'r' in 'strawberry'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ],
+      "evaluation_type": "letter_count"
+    },
+    {
+      "id": "letter_count_002",
+      "question": "How many times does the letter 'l' appear in the word 'parallel'?",
+      "expected_answer": "3",
+      "description": "Count occurrences of letter 'l' in 'parallel'",
+      "tags": [
+        "letter_counting",
+        "basic"
+      ],
+      "evaluation_type": "letter_count"
+    },
+    {
+      "id": "letter_count_003",
+      "question": "How many times does the letter 'e' appear in the word 'development'?",
+      "expected_answer": "4",
+      "description": "Count occurrences of letter 'e' in 'development'",
+      "tags": [
+        "letter_counting",
+        "medium"
+      ],
+      "evaluation_type": "letter_count"
+    },
+    {
+      "id": "theory_of_mind_001",
+      "question": "Sally hides a marble in the basket and leaves the room. Anne moves the marble to the box. Sally returns. Where will Sally look for the marble? Explain why.",
+      "expected_answer": "basket",
+      "description": "Classic Sally-Anne false belief test - tests understanding that Sally doesn't know the marble was moved",
+      "tags": [
+        "theory_of_mind",
+        "false_belief",
+        "perspective_taking",
+        "advanced"
+      ],
+      "evaluation_type": "theory_of_mind"
+    },
+    {
+      "id": "theory_of_mind_002",
+      "question": "John puts his chocolate in the cupboard and goes to school. His mother moves the chocolate to the fridge. When John comes home, where will he first look for his chocolate?",
+      "expected_answer": "cupboard",
+      "description": "Variation of false belief test with different objects and actors",
+      "tags": [
+        "theory_of_mind",
+        "false_belief",
+        "perspective_taking",
+        "advanced"
+      ],
+      "evaluation_type": "theory_of_mind"
+    },
+    {
+      "id": "theory_of_mind_003",
+      "question": "Maria places her book on the desk and leaves for lunch. While she's away, Tom moves the book to the shelf. When Maria returns, where will she think her book is?",
+      "expected_answer": "desk",
+      "description": "Another false belief variation testing understanding of another person's outdated knowledge",
+      "tags": [
+        "theory_of_mind",
+        "false_belief",
+        "perspective_taking",
+        "advanced"
+      ],
+      "evaluation_type": "theory_of_mind"
+    }
+  ]
+}
