@@ -133,7 +133,15 @@ class EvaluationReport(BaseModel):
     # Tags and categories
     tags_tested: List[str] = Field(default_factory=list)
     tag_performance: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
-    
+
+    @property
+    def display_name(self) -> str:
+        """Get a clean display name for the model, extracting basename for local paths."""
+        name = self.model_name.strip('"').strip("'")
+        if name.endswith('.gguf') and '/' in name:
+            return Path(name).stem
+        return name
+
     def add_result(self, result: EvaluationResult):
         """Add a test result to the report."""
         self.test_results.append(result)
@@ -167,10 +175,15 @@ class EvaluationReport(BaseModel):
     def save_to_file(self, base_path: Path):
         """Save report to JSON file in the specified directory structure."""
         # Create directory structure: /reports/model_name/
+        # For local file paths, extract just the filename
+        model_name = self.model_name.strip('"').strip("'")
+        if model_name.endswith('.gguf') and '/' in model_name:
+            model_name = Path(model_name).stem  # Get filename without extension
+
         # Clean model name for safe filesystem use
-        clean_model_name = (self.model_name
+        clean_model_name = (model_name
                           .replace("/", "_")
-                          .replace(":", "_") 
+                          .replace(":", "_")
                           .replace('"', "")
                           .replace("'", "")
                           .replace(" ", "_"))
@@ -200,10 +213,10 @@ class EvaluationReport(BaseModel):
         lines = []
         
         # Header
-        lines.append(f"# Evaluation Report: {self.model_name}")
+        lines.append(f"# Evaluation Report: {self.display_name}")
         lines.append("")
         lines.append(f"**Generated:** {self.timestamp.strftime('%B %d, %Y at %I:%M:%S %p')}")
-        lines.append(f"**Model:** `{self.model_name}`")
+        lines.append(f"**Model:** `{self.display_name}`")
         lines.append(f"**Server URL:** {self.server_url or 'N/A'}")
         lines.append(f"**Evaluation Mode:** {self.evaluation_mode}")
         if self.test_suite_name:
@@ -224,7 +237,10 @@ class EvaluationReport(BaseModel):
                 if self.hardware_info.gpu_family:
                     gpu_details += f" ({self.hardware_info.gpu_family})"
                 lines.append(f"| **GPU** | {gpu_details} |")
-            
+
+            if self.hardware_info.processor:
+                lines.append(f"| **CPU** | {self.hardware_info.processor} |")
+
             if self.hardware_info.metal_backend:
                 lines.append(f"| **Compute Backend** | Metal |")
             

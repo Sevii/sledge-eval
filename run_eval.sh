@@ -115,17 +115,45 @@ cleanup() {
     fi
 }
 
+# Function to check if model is a local file path
+is_local_model() {
+    local model=$1
+    # Check if it's a file that exists, or looks like a path (starts with / or ~ or ./ or ends with .gguf)
+    if [ -f "$model" ]; then
+        return 0
+    elif [[ "$model" == /* ]] || [[ "$model" == ~* ]] || [[ "$model" == ./* ]] || [[ "$model" == *.gguf ]]; then
+        return 0
+    fi
+    return 1
+}
+
 # Function to start the server
 start_server() {
     local model=$1
     local port=$2
-    
+
     print_info "Starting llama-server with model: $model"
     print_info "Server will be available on port: $port"
-    
+
+    # Determine if using local file (-m) or HuggingFace model (-hf)
+    local model_flag
+    if is_local_model "$model"; then
+        # Expand ~ if present
+        model=$(eval echo "$model")
+        if [ ! -f "$model" ]; then
+            print_error "Local model file not found: $model"
+            exit 1
+        fi
+        print_info "Using local model file with -m flag"
+        model_flag="-m"
+    else
+        print_info "Using HuggingFace model with -hf flag"
+        model_flag="-hf"
+    fi
+
     # Start llama-server in background
     llama-server \
-        -hf "$model" \
+        $model_flag "$model" \
         --port "$port" \
         --host "127.0.0.1" \
         --ctx-size 4096 \
@@ -204,15 +232,16 @@ usage() {
     echo "Usage: $0 [MODEL] [PORT] [MODE] [TEST_SUITE]"
     echo ""
     echo "Arguments:"
-    echo "  MODEL      HuggingFace model ID (default: $DEFAULT_MODEL)"
+    echo "  MODEL      HuggingFace model ID or local path to .gguf file (default: $DEFAULT_MODEL)"
     echo "  PORT       Server port (default: $DEFAULT_PORT)"
     echo "  MODE       Evaluation mode: single, suite, custom, all, anki (default: $DEFAULT_MODE)"
     echo "  TEST_SUITE Path to test suite JSON file (optional)"
     echo ""
     echo "Examples:"
     echo "  $0                                                    # Use defaults (all tests)"
-    echo "  $0 mistralai/Ministral-8B-Instruct-2410-GGUF        # Different model, all tests"
-    echo "  $0 mistralai/Ministral-3-3B-Reasoning-2512-GGUF 8081 single  # Custom port and mode"
+    echo "  $0 mistralai/Ministral-8B-Instruct-2410-GGUF        # HuggingFace model, all tests"
+    echo "  $0 ~/Downloads/model.gguf                           # Local GGUF file"
+    echo "  $0 /path/to/my-model.gguf 8081 single               # Local model, custom port and mode"
     echo "  $0 mistralai/Ministral-3-3B-Reasoning-2512-GGUF 8080 suite tests/my_tests.json  # Custom test suite"
     echo ""
     echo "Available modes:"

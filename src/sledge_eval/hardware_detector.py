@@ -83,8 +83,65 @@ class HardwareDetector:
             info.os_version = platform.release()
             info.architecture = platform.machine()
             info.processor = platform.processor()
+
+            # On Linux, get more detailed CPU info from /proc/cpuinfo
+            if info.os_name == "Linux":
+                self._extract_linux_cpu_info(info)
+                self._extract_linux_memory_info(info)
+                self._extract_nvidia_gpu_info(info)
         except Exception:
             pass  # Continue if system info extraction fails
+
+    def _extract_linux_cpu_info(self, info: HardwareInfo) -> None:
+        """Extract CPU information from /proc/cpuinfo on Linux."""
+        try:
+            cpuinfo_path = Path("/proc/cpuinfo")
+            if cpuinfo_path.exists():
+                content = cpuinfo_path.read_text()
+                # Get model name
+                model_match = re.search(r'model name\s*:\s*(.+)', content)
+                if model_match:
+                    info.processor = model_match.group(1).strip()
+        except Exception:
+            pass
+
+    def _extract_linux_memory_info(self, info: HardwareInfo) -> None:
+        """Extract memory information from /proc/meminfo on Linux."""
+        try:
+            meminfo_path = Path("/proc/meminfo")
+            if meminfo_path.exists():
+                content = meminfo_path.read_text()
+                # Get total memory (in kB, convert to MB)
+                mem_match = re.search(r'MemTotal:\s*(\d+)\s*kB', content)
+                if mem_match:
+                    info.total_memory_mb = float(mem_match.group(1)) / 1024
+                # Get available memory
+                avail_match = re.search(r'MemAvailable:\s*(\d+)\s*kB', content)
+                if avail_match:
+                    info.free_memory_mb = float(avail_match.group(1)) / 1024
+        except Exception:
+            pass
+
+    def _extract_nvidia_gpu_info(self, info: HardwareInfo) -> None:
+        """Extract NVIDIA GPU information using nvidia-smi."""
+        import subprocess
+        try:
+            # Get GPU name and memory
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=name,memory.total,memory.free', '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                line = result.stdout.strip().split('\n')[0]  # First GPU
+                parts = [p.strip() for p in line.split(',')]
+                if len(parts) >= 1 and not info.gpu_name:
+                    info.gpu_name = parts[0]
+                if len(parts) >= 2:
+                    info.gpu_memory_mb = float(parts[1])
+                if len(parts) >= 3:
+                    info.free_memory_mb = float(parts[2])
+        except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+            pass  # nvidia-smi not available or failed
     
     def _extract_log_info(self, info: HardwareInfo) -> None:
         """Extract information from llama-server logs."""
@@ -112,39 +169,57 @@ class HardwareDetector:
     
     def _extract_gpu_info(self, log_content: str, info: HardwareInfo) -> None:
         """Extract GPU information from logs."""
+        # Metal backend (macOS)
         # GPU name: "ggml_metal_device_init: GPU name:   Apple M3"
         gpu_name_match = re.search(r'ggml_metal_device_init: GPU name:\s+(.+)', log_content)
         if gpu_name_match:
             info.gpu_name = gpu_name_match.group(1).strip()
-        
+
         # GPU family: "ggml_metal_device_init: GPU family: MTLGPUFamilyApple9  (1009)"
         gpu_family_match = re.search(r'ggml_metal_device_init: GPU family:\s+(\w+)', log_content)
         if gpu_family_match:
             info.gpu_family = gpu_family_match.group(1).strip()
-        
+
         # Metal backend detection
         if 'ggml_metal_device_init' in log_content:
             info.metal_backend = True
-        
+
         # Capabilities
         unified_memory_match = re.search(r'ggml_metal_device_init: has unified memory\s+=\s+(true|false)', log_content)
         if unified_memory_match:
             info.has_unified_memory = unified_memory_match.group(1) == 'true'
-        
+
         bfloat_match = re.search(r'ggml_metal_device_init: has bfloat\s+=\s+(true|false)', log_content)
         if bfloat_match:
             info.has_bfloat = bfloat_match.group(1) == 'true'
-        
+
         tensor_match = re.search(r'ggml_metal_device_init: has tensor\s+=\s+(true|false)', log_content)
         if tensor_match:
             info.has_tensor = tensor_match.group(1) == 'true'
-        
+
         # Working set size: "ggml_metal_device_init: recommendedMaxWorkingSetSize  = 17179.89 MB"
         working_set_match = re.search(r'recommendedMaxWorkingSetSize\s+=\s+([\d.]+)\s+MB', log_content)
         if working_set_match:
             info.recommended_max_working_set_size_mb = float(working_set_match.group(1))
             # Use recommendedMaxWorkingSetSize as GPU memory available
             info.gpu_memory_mb = float(working_set_match.group(1))
+
+        # Vulkan backend (Linux/Windows) - fallback if GPU name not already set
+        # Format: "ggml_vulkan: 0 = NVIDIA GeForce RTX 5070 Ti (NVIDIA) | uma: 0 | ..."
+        if not info.gpu_name:
+            vulkan_match = re.search(r'ggml_vulkan: 0 = ([^|]+)\|', log_content)
+            if vulkan_match:
+                gpu_info = vulkan_match.group(1).strip()
+                # Remove vendor suffix in parentheses if present
+                gpu_info = re.sub(r'\s*\([^)]+\)\s*$', '', gpu_info)
+                info.gpu_name = gpu_info.strip()
+
+        # CUDA backend (Linux/Windows)
+        # Format varies, try common patterns
+        if not info.gpu_name:
+            cuda_match = re.search(r'ggml_cuda_init: found (\d+) CUDA devices?:\s*\n\s*Device 0: (.+)', log_content)
+            if cuda_match:
+                info.gpu_name = cuda_match.group(2).strip()
     
     def _extract_memory_info(self, log_content: str, info: HardwareInfo) -> None:
         """Extract memory information from logs."""
@@ -209,37 +284,41 @@ class HardwareDetector:
     def get_hardware_summary(self) -> Dict[str, Any]:
         """Get a concise hardware summary for display."""
         info = self.extract_hardware_info()
-        
+
         summary = {}
-        
+
         # GPU/Compute
         if info.gpu_name:
             summary['GPU'] = info.gpu_name
         if info.metal_backend:
             summary['Compute Backend'] = 'Metal'
-        
+
+        # CPU
+        if info.processor:
+            summary['CPU'] = info.processor
+
         # Memory
         if info.gpu_memory_mb:
             summary['GPU Memory'] = f"{info.gpu_memory_mb:.0f} MB"
         if info.total_memory_mb:
-            summary['Total Memory'] = f"{info.total_memory_mb:.0f} MB"
+            summary['System Memory'] = f"{info.total_memory_mb:.0f} MB"
         if info.model_memory_mb:
             summary['Model Memory'] = f"{info.model_memory_mb:.0f} MB"
-        
+
         # Model
         if info.model_size_gb:
             summary['Model Size'] = f"{info.model_size_gb:.2f} GB"
         if info.model_params_b:
             summary['Model Parameters'] = f"{info.model_params_b:.1f}B"
-        
+
         # Threading
         if info.n_threads:
             summary['Threads'] = f"{info.n_threads} (batch: {info.n_threads_batch or 'N/A'})"
-        
+
         # System
         if info.os_name and info.architecture:
             summary['System'] = f"{info.os_name} {info.architecture}"
-        
+
         return summary
 
 
