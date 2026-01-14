@@ -127,6 +127,59 @@ is_local_model() {
     return 1
 }
 
+# Function to find model in HuggingFace cache
+find_model_in_cache() {
+    local model=$1
+
+    # Determine HuggingFace cache directory
+    local hf_cache="${HF_HOME:-$HOME/.cache/huggingface}/hub"
+
+    # Also check XDG_CACHE_HOME if set
+    if [ ! -d "$hf_cache" ] && [ ! -z "$XDG_CACHE_HOME" ]; then
+        hf_cache="$XDG_CACHE_HOME/huggingface/hub"
+    fi
+
+    if [ ! -d "$hf_cache" ]; then
+        return 1
+    fi
+
+    # Convert model name to cache directory format (org/model -> models--org--model)
+    local cache_dir_name="models--$(echo "$model" | sed 's/\//_/g; s/_/--/')"
+    # Handle the case where there's only one slash (org/model)
+    cache_dir_name="models--$(echo "$model" | sed 's/\//--/g')"
+
+    local model_cache_dir="$hf_cache/$cache_dir_name"
+
+    if [ ! -d "$model_cache_dir" ]; then
+        return 1
+    fi
+
+    # Look for snapshots directory
+    local snapshots_dir="$model_cache_dir/snapshots"
+    if [ ! -d "$snapshots_dir" ]; then
+        return 1
+    fi
+
+    # Get the most recent snapshot (there may be multiple)
+    local latest_snapshot=$(ls -t "$snapshots_dir" 2>/dev/null | head -1)
+    if [ -z "$latest_snapshot" ]; then
+        return 1
+    fi
+
+    local snapshot_path="$snapshots_dir/$latest_snapshot"
+
+    # Find a .gguf file in the snapshot directory
+    local gguf_file=$(find "$snapshot_path" -maxdepth 1 -name "*.gguf" -type f 2>/dev/null | head -1)
+
+    if [ -z "$gguf_file" ]; then
+        return 1
+    fi
+
+    # Return the path to the gguf file
+    echo "$gguf_file"
+    return 0
+}
+
 # Function to start the server
 start_server() {
     local model=$1
@@ -137,23 +190,33 @@ start_server() {
 
     # Determine if using local file (-m) or HuggingFace model (-hf)
     local model_flag
+    local model_path="$model"
+
     if is_local_model "$model"; then
         # Expand ~ if present
-        model=$(eval echo "$model")
-        if [ ! -f "$model" ]; then
-            print_error "Local model file not found: $model"
+        model_path=$(eval echo "$model")
+        if [ ! -f "$model_path" ]; then
+            print_error "Local model file not found: $model_path"
             exit 1
         fi
         print_info "Using local model file with -m flag"
         model_flag="-m"
     else
-        print_info "Using HuggingFace model with -hf flag"
-        model_flag="-hf"
+        # Check if model exists in HuggingFace cache
+        local cached_model=$(find_model_in_cache "$model")
+        if [ ! -z "$cached_model" ]; then
+            print_success "Found model in HuggingFace cache: $cached_model"
+            model_path="$cached_model"
+            model_flag="-m"
+        else
+            print_info "Model not found in cache, will download from HuggingFace"
+            model_flag="-hf"
+        fi
     fi
 
     # Start llama-server in background
     llama-server \
-        $model_flag "$model" \
+        $model_flag "$model_path" \
         --port "$port" \
         --host "127.0.0.1" \
         --ctx-size 4096 \
