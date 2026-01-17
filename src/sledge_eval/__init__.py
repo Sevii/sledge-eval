@@ -17,6 +17,17 @@ try:
 except ImportError:
     MinistralEvaluator = None
 
+try:
+    from .gemini_evaluator import GeminiEvaluator, GeminiTextEvaluator
+except ImportError:
+    GeminiEvaluator = None
+    GeminiTextEvaluator = None
+
+try:
+    from .gemini_anki_evaluator import GeminiAnkiEvaluator
+except ImportError:
+    GeminiAnkiEvaluator = None
+
 from .server_evaluator import ServerEvaluator
 from .anki_evaluator import AnkiLargeToolSetEvaluator
 from .text_evaluator import TextEvaluator
@@ -47,3 +58,15 @@ __all__ = [
 # Add MinistralEvaluator to __all__ only if it was successfully imported
 if MinistralEvaluator is not None:
     __all__.append("MinistralEvaluator")
+
+# Add GeminiEvaluator to __all__ only if it was successfully imported
+if GeminiEvaluator is not None:
+    __all__.append("GeminiEvaluator")
+
+# Add GeminiTextEvaluator to __all__ only if it was successfully imported
+if GeminiTextEvaluator is not None:
+    __all__.append("GeminiTextEvaluator")
+
+# Add GeminiAnkiEvaluator to __all__ only if it was successfully imported
+if GeminiAnkiEvaluator is not None:
+    __all__.append("GeminiAnkiEvaluator")
