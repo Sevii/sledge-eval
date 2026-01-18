@@ -89,8 +89,10 @@ class HardwareDetector:
                 self._extract_linux_cpu_info(info)
                 self._extract_linux_memory_info(info)
                 self._extract_nvidia_gpu_info(info)
-        except Exception:
-            pass  # Continue if system info extraction fails
+        except (OSError, AttributeError) as e:
+            # Log but continue if system info extraction fails
+            import logging
+            logging.getLogger(__name__).debug(f"System info extraction failed: {e}")
 
     def _extract_linux_cpu_info(self, info: HardwareInfo) -> None:
         """Extract CPU information from /proc/cpuinfo on Linux."""
@@ -102,8 +104,9 @@ class HardwareDetector:
                 model_match = re.search(r'model name\s*:\s*(.+)', content)
                 if model_match:
                     info.processor = model_match.group(1).strip()
-        except Exception:
-            pass
+        except (OSError, IOError) as e:
+            import logging
+            logging.getLogger(__name__).debug(f"CPU info extraction failed: {e}")
 
     def _extract_linux_memory_info(self, info: HardwareInfo) -> None:
         """Extract memory information from /proc/meminfo on Linux."""
@@ -119,8 +122,9 @@ class HardwareDetector:
                 avail_match = re.search(r'MemAvailable:\s*(\d+)\s*kB', content)
                 if avail_match:
                     info.free_memory_mb = float(avail_match.group(1)) / 1024
-        except Exception:
-            pass
+        except (OSError, IOError, ValueError) as e:
+            import logging
+            logging.getLogger(__name__).debug(f"Memory info extraction failed: {e}")
 
     def _extract_nvidia_gpu_info(self, info: HardwareInfo) -> None:
         """Extract NVIDIA GPU information using nvidia-smi."""
@@ -140,8 +144,9 @@ class HardwareDetector:
                     info.gpu_memory_mb = float(parts[1])
                 if len(parts) >= 3:
                     info.free_memory_mb = float(parts[2])
-        except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-            pass  # nvidia-smi not available or failed
+        except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError) as e:
+            import logging
+            logging.getLogger(__name__).debug(f"NVIDIA GPU info extraction failed: {e}")
     
     def _extract_log_info(self, info: HardwareInfo) -> None:
         """Extract information from llama-server logs."""
@@ -163,9 +168,10 @@ class HardwareDetector:
             
             # Extract build information
             self._extract_build_info(log_content, info)
-            
-        except Exception:
-            pass  # Continue if log parsing fails
+
+        except (OSError, IOError, ValueError) as e:
+            import logging
+            logging.getLogger(__name__).debug(f"Log file parsing failed: {e}")
     
     def _extract_gpu_info(self, log_content: str, info: HardwareInfo) -> None:
         """Extract GPU information from logs."""
