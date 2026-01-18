@@ -209,237 +209,14 @@ class EvaluationReport(BaseModel):
         return {"json": json_filepath, "markdown": md_filepath}
     
     def generate_markdown(self) -> str:
-        """Generate a comprehensive markdown report."""
-        lines = []
-        
-        # Header
-        lines.append(f"# Evaluation Report: {self.display_name}")
-        lines.append("")
-        lines.append(f"**Generated:** {self.timestamp.strftime('%B %d, %Y at %I:%M:%S %p')}")
-        lines.append(f"**Model:** `{self.display_name}`")
-        lines.append(f"**Server URL:** {self.server_url or 'N/A'}")
-        lines.append(f"**Evaluation Mode:** {self.evaluation_mode}")
-        if self.test_suite_name:
-            lines.append(f"**Test Suite:** {self.test_suite_name}")
-        lines.append("")
-        
-        # Hardware Information
-        if self.hardware_info:
-            lines.append("## 🖥️ Hardware Information")
-            lines.append("")
-            
-            # Create hardware summary table
-            lines.append("| Component | Details |")
-            lines.append("|-----------|---------|")
-            
-            if self.hardware_info.gpu_name:
-                gpu_details = self.hardware_info.gpu_name
-                if self.hardware_info.gpu_family:
-                    gpu_details += f" ({self.hardware_info.gpu_family})"
-                lines.append(f"| **GPU** | {gpu_details} |")
+        """Generate a comprehensive markdown report.
 
-            if self.hardware_info.processor:
-                lines.append(f"| **CPU** | {self.hardware_info.processor} |")
+        Delegates to MarkdownRenderer for actual rendering.
+        """
+        from .reporting.markdown_renderer import MarkdownRenderer
 
-            if self.hardware_info.metal_backend:
-                lines.append(f"| **Compute Backend** | Metal |")
-            
-            if self.hardware_info.gpu_memory_mb:
-                lines.append(f"| **GPU Memory** | {self.hardware_info.gpu_memory_mb:.0f} MB |")
-            
-            if self.hardware_info.total_memory_mb:
-                lines.append(f"| **Total Memory** | {self.hardware_info.total_memory_mb:.0f} MB |")
-            
-            if self.hardware_info.model_memory_mb:
-                lines.append(f"| **Model Memory** | {self.hardware_info.model_memory_mb:.0f} MB |")
-            
-            if self.hardware_info.context_memory_mb:
-                lines.append(f"| **Context Memory** | {self.hardware_info.context_memory_mb:.0f} MB |")
-            
-            if self.hardware_info.model_size_gb:
-                lines.append(f"| **Model Size** | {self.hardware_info.model_size_gb:.2f} GB |")
-            
-            if self.hardware_info.model_params_b:
-                lines.append(f"| **Model Parameters** | {self.hardware_info.model_params_b:.1f}B |")
-            
-            if self.hardware_info.n_threads:
-                thread_info = f"{self.hardware_info.n_threads}"
-                if self.hardware_info.n_threads_batch:
-                    thread_info += f" (batch: {self.hardware_info.n_threads_batch})"
-                lines.append(f"| **Threads** | {thread_info} |")
-            
-            if self.hardware_info.context_size:
-                lines.append(f"| **Context Size** | {self.hardware_info.context_size:,} |")
-            
-            if self.hardware_info.os_name and self.hardware_info.architecture:
-                lines.append(f"| **System** | {self.hardware_info.os_name} {self.hardware_info.architecture} |")
-            
-            # GPU Capabilities
-            capabilities = []
-            if self.hardware_info.has_unified_memory:
-                capabilities.append("Unified Memory")
-            if self.hardware_info.has_bfloat:
-                capabilities.append("BFloat16")
-            if self.hardware_info.has_tensor is False:
-                capabilities.append("No Tensor API")
-            
-            if capabilities:
-                lines.append(f"| **GPU Features** | {', '.join(capabilities)} |")
-            
-            if self.hardware_info.llama_cpp_build and self.hardware_info.llama_cpp_commit:
-                build_info = f"Build {self.hardware_info.llama_cpp_build} ({self.hardware_info.llama_cpp_commit[:8]})"
-                lines.append(f"| **llama.cpp** | {build_info} |")
-            
-            lines.append("")
-        
-        # Executive Summary
-        lines.append("## 📊 Executive Summary")
-        lines.append("")
-        
-        # Pass rate with emoji
-        if self.pass_rate >= 90:
-            status_emoji = "🟢"
-        elif self.pass_rate >= 70:
-            status_emoji = "🟡"
-        else:
-            status_emoji = "🔴"
-        
-        lines.append(f"- **Overall Score:** {status_emoji} {self.pass_rate:.1f}% ({self.passed_tests}/{self.total_tests} tests passed)")
-        lines.append(f"- **Total Evaluation Time:** {self.total_evaluation_time_ms:.1f}ms")
-        
-        if self.test_results:
-            avg_time = sum(r.evaluation_time_ms or 0 for r in self.test_results) / len(self.test_results)
-            lines.append(f"- **Average Test Time:** {avg_time:.1f}ms")
-        
-        lines.append("")
-        
-        # Performance by Tag
-        if self.tag_performance:
-            lines.append("## 🏷️ Performance by Category")
-            lines.append("")
-            lines.append("| Category | Passed | Failed | Total | Pass Rate |")
-            lines.append("|----------|--------|--------|-------|-----------|")
-            
-            for tag, perf in sorted(self.tag_performance.items()):
-                pass_rate = (perf["passed"] / perf["total"] * 100) if perf["total"] > 0 else 0
-                if pass_rate >= 90:
-                    emoji = "🟢"
-                elif pass_rate >= 70:
-                    emoji = "🟡"
-                else:
-                    emoji = "🔴"
-                lines.append(f"| {emoji} {tag} | {perf['passed']} | {perf['failed']} | {perf['total']} | {pass_rate:.1f}% |")
-            lines.append("")
-        
-        # Detailed Test Results
-        lines.append("## 📋 Detailed Test Results")
-        lines.append("")
-        
-        # Group by pass/fail
-        passed_tests = [r for r in self.test_results if r.passed]
-        failed_tests = [r for r in self.test_results if not r.passed]
-        
-        if passed_tests:
-            lines.append("### ✅ Passed Tests")
-            lines.append("")
-            for result in passed_tests:
-                lines.append(f"#### {result.test_id}")
-                lines.append("")
-                if result.voice_command:
-                    lines.append(f"**Command:** `{result.voice_command}`")
-                if result.test_description:
-                    lines.append(f"**Description:** {result.test_description}")
-                if result.tags:
-                    lines.append(f"**Tags:** {', '.join(result.tags)}")
-                if result.evaluation_time_ms:
-                    lines.append(f"**Execution Time:** {result.evaluation_time_ms:.1f}ms")
-                
-                lines.append("")
-                lines.append("**Expected Tool Calls:**")
-                for tc in result.expected_tool_calls:
-                    lines.append(f"- `{tc.name}({tc.arguments})`")
-                
-                lines.append("")
-                lines.append("**Predicted Tool Calls:**")
-                for tc in result.predicted_tool_calls:
-                    lines.append(f"- `{tc.name}({tc.arguments})`")
-                
-                lines.append("")
-        
-        if failed_tests:
-            lines.append("### ❌ Failed Tests")
-            lines.append("")
-            for result in failed_tests:
-                lines.append(f"#### {result.test_id}")
-                lines.append("")
-                if result.voice_command:
-                    lines.append(f"**Command:** `{result.voice_command}`")
-                if result.test_description:
-                    lines.append(f"**Description:** {result.test_description}")
-                if result.tags:
-                    lines.append(f"**Tags:** {', '.join(result.tags)}")
-                if result.evaluation_time_ms:
-                    lines.append(f"**Execution Time:** {result.evaluation_time_ms:.1f}ms")
-                
-                if result.error:
-                    lines.append("")
-                    lines.append(f"**Error:** `{result.error}`")
-                
-                lines.append("")
-                lines.append("**Expected Tool Calls:**")
-                for tc in result.expected_tool_calls:
-                    lines.append(f"- `{tc.name}({tc.arguments})`")
-                
-                lines.append("")
-                lines.append("**Predicted Tool Calls:**")
-                if result.predicted_tool_calls:
-                    for tc in result.predicted_tool_calls:
-                        lines.append(f"- `{tc.name}({tc.arguments})`")
-                else:
-                    lines.append("- *No tool calls predicted*")
-                
-                lines.append("")
-        
-        # Error Summary
-        if self.errors:
-            lines.append("## ⚠️ Errors Encountered")
-            lines.append("")
-            for i, error in enumerate(self.errors, 1):
-                lines.append(f"{i}. `{error}`")
-            lines.append("")
-        
-        # Technical Details
-        lines.append("## 🔧 Technical Details")
-        lines.append("")
-        lines.append("| Metric | Value |")
-        lines.append("|--------|-------|")
-        lines.append(f"| Model Name | `{self.model_name}` |")
-        lines.append(f"| Server URL | {self.server_url or 'N/A'} |")
-        lines.append(f"| Evaluation Mode | {self.evaluation_mode} |")
-        lines.append(f"| Timestamp | {self.timestamp.isoformat()} |")
-        lines.append(f"| Total Tests | {self.total_tests} |")
-        lines.append(f"| Passed Tests | {self.passed_tests} |")
-        lines.append(f"| Failed Tests | {self.failed_tests} |")
-        lines.append(f"| Pass Rate | {self.pass_rate:.2f}% |")
-        lines.append(f"| Total Time | {self.total_evaluation_time_ms:.1f}ms |")
-        
-        # Add hardware summary to technical details
-        if self.hardware_info:
-            if self.hardware_info.model_size_gb and self.hardware_info.model_memory_mb:
-                efficiency = (self.hardware_info.model_size_gb * 1024) / self.hardware_info.model_memory_mb
-                lines.append(f"| Memory Efficiency | {efficiency:.2f}x |")
-            
-            if self.total_evaluation_time_ms > 0 and self.hardware_info.n_threads:
-                throughput = self.total_tests / (self.total_evaluation_time_ms / 1000) * self.hardware_info.n_threads
-                lines.append(f"| Throughput (tests/sec/thread) | {throughput:.2f} |")
-        
-        lines.append("")
-        
-        # Footer
-        lines.append("---")
-        lines.append("*This report was automatically generated by Sledge Eval*")
-        
-        return "\n".join(lines)
+        renderer = MarkdownRenderer()
+        return renderer.render(self)
 
 
 class Evaluator:
@@ -453,6 +230,22 @@ class Evaluator:
             model_client: The language model client to use for evaluation
         """
         self.model_client = model_client
+
+    def _compare_tool_calls(
+        self, predicted: List[ToolCall], expected: List[ToolCall]
+    ) -> bool:
+        """
+        Compare predicted and expected tool calls.
+
+        Args:
+            predicted: List of predicted tool calls
+            expected: List of expected tool calls
+
+        Returns:
+            True if they match, False otherwise
+        """
+        from .utils.comparison import compare_tool_calls
+        return compare_tool_calls(predicted, expected, strict=False)
 
     def load_test_suite(self, test_file: Path) -> TestSuite:
         """

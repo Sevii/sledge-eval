@@ -27,7 +27,7 @@ class TextServerEvaluator(TextEvaluator):
         try:
             response = requests.get(f"{self.server_url}/health", timeout=5)
             return response.status_code == 200
-        except:
+        except requests.exceptions.RequestException:
             return False
 
     def _get_model_response(self, question: str) -> str:

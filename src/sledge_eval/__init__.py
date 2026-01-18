@@ -11,6 +11,8 @@ from .evaluator import (
     TextEvaluationSuite,
     TextEvaluationResult,
 )
+from .config import EvalConfig, ServerConfig, GeminiConfig, TestSuiteConfig, ReportConfig
+from .logging import get_logger, configure_root_logger, LoggerMixin
 # Optional imports for evaluators with dependencies
 try:
     from .ministral_evaluator import MinistralEvaluator
@@ -39,20 +41,28 @@ __version__ = "0.1.0"
 # Build __all__ dynamically based on what was successfully imported
 __all__ = [
     "AnkiLargeToolSetEvaluator",
+    "EvalConfig",
     "EvaluationReport",
-    "EvaluationResult", 
+    "EvaluationResult",
     "Evaluator",
+    "GeminiConfig",
     "HardwareDetector",
     "HardwareInfo",
+    "LoggerMixin",
+    "ReportConfig",
+    "ServerConfig",
     "ServerEvaluator",
     "TestSuite",
+    "TestSuiteConfig",
     "TextEvaluationTest",
-    "TextEvaluationSuite", 
+    "TextEvaluationSuite",
     "TextEvaluationResult",
     "TextEvaluator",
     "TextServerEvaluator",
     "ToolCall",
     "VoiceCommandTest",
+    "configure_root_logger",
+    "get_logger",
 ]
 
 # Add MinistralEvaluator to __all__ only if it was successfully imported

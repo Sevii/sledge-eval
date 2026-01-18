@@ -58,14 +58,8 @@ class GeminiEvaluator(Evaluator):
 
     def _load_env_file(self):
         """Load environment variables from .env file if present."""
-        env_path = os.path.join(os.getcwd(), ".env")
-        if os.path.exists(env_path):
-            with open(env_path, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        key, value = line.split("=", 1)
-                        os.environ[key.strip()] = value.strip()
+        from .utils.env import load_env_file
+        load_env_file()
 
     def _get_default_tools(self) -> List[Dict[str, Any]]:
         """
@@ -74,115 +68,8 @@ class GeminiEvaluator(Evaluator):
         Returns:
             List of tool definitions in OpenAI format
         """
-        return [
-            {
-                "type": "function",
-                "function": {
-                    "name": "control_lights",
-                    "description": "Control smart lights in a specific room",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "room": {
-                                "type": "string",
-                                "description": "The room where the lights are located",
-                            },
-                            "action": {
-                                "type": "string",
-                                "enum": ["turn_on", "turn_off", "dim", "brighten"],
-                                "description": "The action to perform on the lights",
-                            },
-                        },
-                        "required": ["room", "action"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "set_temperature",
-                    "description": "Set the thermostat to a specific temperature",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "temperature": {
-                                "type": "number",
-                                "description": "The target temperature",
-                            },
-                            "unit": {
-                                "type": "string",
-                                "enum": ["celsius", "fahrenheit"],
-                                "description": "Temperature unit",
-                            },
-                        },
-                        "required": ["temperature"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "play_music",
-                    "description": "Play music from a specific playlist or artist",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "playlist": {
-                                "type": "string",
-                                "description": "Name of the playlist to play",
-                            },
-                            "artist": {
-                                "type": "string",
-                                "description": "Name of the artist",
-                            },
-                        },
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "adjust_volume",
-                    "description": "Adjust the volume level",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "action": {
-                                "type": "string",
-                                "enum": ["increase", "decrease", "mute", "unmute"],
-                                "description": "Volume adjustment action",
-                            },
-                            "level": {
-                                "type": "number",
-                                "description": "Specific volume level (0-100)",
-                            },
-                        },
-                        "required": ["action"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_weather",
-                    "description": "Get weather information",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "City or location",
-                            },
-                            "timeframe": {
-                                "type": "string",
-                                "enum": ["now", "today", "tomorrow", "week"],
-                                "description": "Time period for weather",
-                            },
-                        },
-                    },
-                },
-            },
-        ]
+        from .tools.defaults import get_default_tools
+        return get_default_tools()
 
     def _convert_to_gemini_tools(self, openai_tools: List[Dict[str, Any]]) -> types.Tool:
         """
@@ -361,35 +248,7 @@ class GeminiEvaluator(Evaluator):
                 tags=test.tags,
             )
 
-    def _compare_tool_calls(
-        self, predicted: List[ToolCall], expected: List[ToolCall]
-    ) -> bool:
-        """
-        Compare predicted and expected tool calls.
-
-        Args:
-            predicted: List of predicted tool calls
-            expected: List of expected tool calls
-
-        Returns:
-            True if they match, False otherwise
-        """
-        if len(predicted) != len(expected):
-            return False
-
-        # Create a more flexible comparison that checks names and key arguments
-        for pred, exp in zip(predicted, expected):
-            if pred.name != exp.name:
-                return False
-
-            # Check that all expected arguments are present with correct values
-            for key, value in exp.arguments.items():
-                if key not in pred.arguments:
-                    return False
-                if pred.arguments[key] != value:
-                    return False
-
-        return True
+    # _compare_tool_calls is inherited from the base Evaluator class
 
 
 class GeminiTextEvaluator(TextEvaluator):
@@ -435,14 +294,8 @@ class GeminiTextEvaluator(TextEvaluator):
 
     def _load_env_file(self):
         """Load environment variables from .env file if present."""
-        env_path = os.path.join(os.getcwd(), ".env")
-        if os.path.exists(env_path):
-            with open(env_path, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        key, value = line.split("=", 1)
-                        os.environ[key.strip()] = value.strip()
+        from .utils.env import load_env_file
+        load_env_file()
 
     def _get_model_response(self, question: str) -> str:
         """
