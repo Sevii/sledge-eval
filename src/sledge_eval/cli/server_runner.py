@@ -146,5 +146,6 @@ class ServerRunner(EvaluationRunner):
             self._text_evaluator = TextServerEvaluator(
                 server_url=self.server_url,
                 timeout=self.timeout,
+                debug=self.debug,
             )
         return self._text_evaluator

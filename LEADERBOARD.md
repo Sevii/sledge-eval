@@ -1,27 +1,29 @@
 # Sledge Eval Leaderboard
 
-*Generated: 2026-01-17 10:38:50*
+*Generated: 2026-01-29 16:32:20*
 
 ## Overall Rankings
 
 | Rank | Model | Pass Rate | Passed | Failed | Total | Avg Time (ms) |
 |------|-------|-----------|--------|--------|-------|---------------|
 | 🥇 1 | gemini-2.5-flash-lite | 79.2% | 19 | 5 | 24 | 582.5 |
-| 🥈 2 | Hammer2.1-3b | 62.5% | 15 | 9 | 24 | 354.1 |
-| 🥉 3 | LFM2.5-1.2B-Instruct-GGUF | 50.0% | 12 | 12 | 24 | 232.4 |
-| 4 | Qwen3-VL-8B-Thinking-GGUF | 44.4% | 8 | 10 | 18 | 22628.9 |
-| 5 | Qwen3-VL-8B-Instruct-GGUF | 44.4% | 8 | 10 | 18 | 3716.8 |
-| 6 | Qwen3-14B-UD-Q6_K_XL | 41.7% | 10 | 14 | 24 | 4059.1 |
-| 7 | Ministral-3-14B-Reasoning-2512-GGUF | 35.0% | 7 | 13 | 20 | 20946.6 |
-| 8 | Ministral-3-3B-Reasoning-2512-Q4_K_M | 33.3% | 8 | 16 | 24 | 273.5 |
-| 9 | Qwen3-4B-Thinking-2507-F16 | 29.2% | 7 | 17 | 24 | 3814.5 |
-| 10 | Ministral-3-3B-Reasoning-2512-GGUF | 15.0% | 3 | 17 | 20 | 5734.2 |
+| 🥈 2 | glm-4.7 | 66.7% | 16 | 8 | 24 | 6049.8 |
+| 🥉 3 | Hammer2.1-3b | 62.5% | 15 | 9 | 24 | 354.1 |
+| 4 | LFM2.5-1.2B-Instruct-GGUF | 50.0% | 12 | 12 | 24 | 1902.6 |
+| 5 | Qwen3-VL-8B-Thinking-GGUF | 44.4% | 8 | 10 | 18 | 22628.9 |
+| 6 | Qwen3-VL-8B-Instruct-GGUF | 44.4% | 8 | 10 | 18 | 3716.8 |
+| 7 | Qwen3-14B-UD-Q6_K_XL | 41.7% | 10 | 14 | 24 | 4059.1 |
+| 8 | Ministral-3-14B-Reasoning-2512-GGUF | 35.0% | 7 | 13 | 20 | 20946.6 |
+| 9 | Ministral-3-3B-Reasoning-2512-Q4_K_M | 33.3% | 8 | 16 | 24 | 273.5 |
+| 10 | Qwen3-4B-Thinking-2507-F16 | 29.2% | 7 | 17 | 24 | 3814.5 |
+| 11 | Ministral-3-3B-Reasoning-2512-GGUF | 15.0% | 3 | 17 | 20 | 5734.2 |
 
 ## Performance by Category
 
 | Model | Anki (Large Toolset) | Letter Counting | Multi-Step | Theory of Mind | Tool Calling |
 |-------|--------|--------|--------|--------|--------|
 | gemini-2.5-flash-lite | 8/12 (66.7%) | 3/3 (100.0%) | 2/3 (66.7%) | 3/3 (100.0%) | 7/8 (87.5%) |
+| glm-4.7 | 7/12 (58.3%) | 3/3 (100.0%) | 2/3 (66.7%) | 2/3 (66.7%) | 5/8 (62.5%) |
 | Hammer2.1-3b | 7/12 (58.3%) | 1/3 (33.3%) | 0/3 (0.0%) | 3/3 (100.0%) | 5/8 (62.5%) |
 | LFM2.5-1.2B-Instruct-GGUF | 4/12 (33.3%) | 1/3 (33.3%) | 0/3 (0.0%) | 3/3 (100.0%) | 6/8 (75.0%) |
 | Qwen3-VL-8B-Thinking-GGUF | 4/12 (33.3%) | N/A | 0/3 (0.0%) | N/A | 6/8 (75.0%) |
@@ -46,11 +48,10 @@
 
 ### LFM2.5-1.2B-Instruct-GGUF
 
-- **GPU:** NVIDIA GeForce RTX 5070 Ti
-- **CPU:** AMD Ryzen 9 9950X 16-Core Processor
-- **System RAM:** 60.4 GB
-- **GPU Memory:** 15.9 GB
-- **OS:** Linux 6.16.3-76061603-generic
+- **GPU:** Apple M3
+- **CPU:** arm
+- **GPU Memory:** 16.8 GB
+- **OS:** Darwin 23.6.0
 
 ### Qwen3-VL-8B-Thinking-GGUF
 
@@ -106,7 +107,7 @@
 ## Test Suite Information
 
 - **Total unique test categories:** 42
-- **Models evaluated:** 10
+- **Models evaluated:** 11
 
 ### Test Categories
 

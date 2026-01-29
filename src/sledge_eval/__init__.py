@@ -13,6 +13,10 @@ from .evaluator import (
 )
 from .config import EvalConfig, ServerConfig, GeminiConfig, OpenRouterConfig, TestSuiteConfig, ReportConfig
 from .logging import get_logger, configure_root_logger, LoggerMixin
+from .http_openai_client import OpenAIClientConfig, OpenAIHTTPClient
+from .openai_evaluator import OpenAICompatibleEvaluator
+from .utils.api_keys import resolve_api_key
+from .tools.defaults import get_default_tools, get_anki_tools
 # Optional imports for evaluators with dependencies
 try:
     from .ministral_evaluator import MinistralEvaluator
@@ -63,36 +67,47 @@ __version__ = "0.1.0"
 
 # Build __all__ dynamically based on what was successfully imported
 __all__ = [
+    # Core evaluator classes
     "AnkiLargeToolSetEvaluator",
-    "EvalConfig",
+    "Evaluator",
+    "LatencyEvaluator",
+    "OpenAICompatibleEvaluator",
+    "ServerEvaluator",
+    "TextEvaluator",
+    "TextServerEvaluator",
+    # Data classes
     "EvaluationReport",
     "EvaluationResult",
-    "Evaluator",
-    "GeminiConfig",
-    "HardwareDetector",
-    "HardwareInfo",
     "LatencyBenchmarkReport",
     "LatencyBenchmarkSuite",
     "LatencyBenchmarkTest",
-    "LatencyEvaluator",
     "LatencyMetrics",
     "LatencyTestResult",
-    "LoggerMixin",
+    "TestSuite",
+    "TextEvaluationResult",
+    "TextEvaluationSuite",
+    "TextEvaluationTest",
+    "ToolCall",
+    "VoiceCommandTest",
+    # HTTP client
+    "OpenAIClientConfig",
+    "OpenAIHTTPClient",
+    # Configuration
+    "EvalConfig",
+    "GeminiConfig",
     "OpenRouterConfig",
     "ReportConfig",
     "ServerConfig",
-    "ServerEvaluator",
-    "TestSuite",
     "TestSuiteConfig",
-    "TextEvaluationTest",
-    "TextEvaluationSuite",
-    "TextEvaluationResult",
-    "TextEvaluator",
-    "TextServerEvaluator",
-    "ToolCall",
-    "VoiceCommandTest",
+    # Utilities
+    "HardwareDetector",
+    "HardwareInfo",
+    "LoggerMixin",
     "configure_root_logger",
+    "get_anki_tools",
+    "get_default_tools",
     "get_logger",
+    "resolve_api_key",
 ]
 
 # Add MinistralEvaluator to __all__ only if it was successfully imported
