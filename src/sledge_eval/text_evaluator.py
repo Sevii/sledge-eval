@@ -234,7 +234,7 @@ class TextEvaluator(Evaluator):
         converted_results = []
         for result in results:
             from .evaluator import EvaluationResult, ToolCall
-            
+
             eval_result = EvaluationResult(
                 test_id=result.test_id,
                 passed=result.passed,
@@ -244,7 +244,10 @@ class TextEvaluator(Evaluator):
                 evaluation_time_ms=result.evaluation_time_ms,
                 voice_command=result.question,  # Use question as voice_command
                 test_description=result.test_description,
-                tags=result.tags
+                tags=result.tags,
+                predicted_answer=result.predicted_answer,
+                expected_answer=result.expected_answer,
+                evaluation_type=result.evaluation_type,
             )
             converted_results.append(eval_result)
         
@@ -303,7 +306,7 @@ def create_letter_counting_test_suite() -> TextEvaluationSuite:
         TextEvaluationTest(
             id="letter_count_003",
             question="How many times does the letter 'e' appear in the word 'development'?",
-            expected_answer="4",
+            expected_answer="3",
             description="Count occurrences of letter 'e' in 'development'",
             tags=["letter_counting", "medium"],
             evaluation_type="letter_count"

@@ -85,6 +85,9 @@ class EvaluationResult(BaseModel):
     voice_command: Optional[str] = None
     test_description: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
+    predicted_answer: Optional[str] = Field(None, description="Model's predicted text answer (text evaluations only)")
+    expected_answer: Optional[str] = Field(None, description="Expected text answer (text evaluations only)")
+    evaluation_type: Optional[str] = Field(None, description="Type of evaluation (text evaluations only)")
 
 
 class TextEvaluationResult(BaseModel):

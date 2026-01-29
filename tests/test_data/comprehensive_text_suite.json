@@ -27,7 +27,7 @@
     {
       "id": "letter_count_003",
       "question": "How many times does the letter 'e' appear in the word 'development'?",
-      "expected_answer": "4",
+      "expected_answer": "3",
       "description": "Count occurrences of letter 'e' in 'development'",
       "tags": [
         "letter_counting",

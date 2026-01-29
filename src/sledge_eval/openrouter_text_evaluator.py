@@ -146,6 +146,9 @@ class OpenRouterTextEvaluator(TextEvaluator):
         # Extract text from response
         if "choices" in response_data and len(response_data["choices"]) > 0:
             message = response_data["choices"][0].get("message", {})
-            return message.get("content", "")
+            content = message.get("content", "")
+            if not content:
+                print(f"Warning: Model returned empty response")
+            return content
 
         return ""

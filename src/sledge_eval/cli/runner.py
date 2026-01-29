@@ -539,6 +539,9 @@ class EvaluationRunner(ABC):
                             voice_command=result.question,
                             test_description=result.test_description,
                             tags=result.tags,
+                            predicted_answer=result.predicted_answer,
+                            expected_answer=result.expected_answer,
+                            evaluation_type=result.evaluation_type,
                         )
                         all_results.append(eval_result)
 
