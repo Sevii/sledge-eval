@@ -111,6 +111,7 @@ class EvaluationReport(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
     model_name: str
     server_url: Optional[str] = None
+    hosting_provider: Optional[str] = Field(default=None, description="API provider (e.g., 'OpenRouter', 'Gemini')")
     evaluation_mode: str  # single, suite, custom, all
     test_suite_name: Optional[str] = None
     

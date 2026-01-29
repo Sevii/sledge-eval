@@ -25,6 +25,7 @@ class ReportGenerator:
         model_name: str,
         mode: str,
         server_url: Optional[str] = None,
+        hosting_provider: Optional[str] = None,
         test_suite_name: Optional[str] = None,
         base_path: Optional[Path] = None,
     ) -> Dict[str, Path]:
@@ -36,6 +37,7 @@ class ReportGenerator:
             model_name: Name of the model being evaluated
             mode: Evaluation mode (single, suite, custom, all, anki, text)
             server_url: URL of the server (for server-based evaluations)
+            hosting_provider: API provider name (e.g., 'OpenRouter', 'Gemini')
             test_suite_name: Name of the test suite
             base_path: Base path for saving reports (defaults to current directory)
 
@@ -57,6 +59,7 @@ class ReportGenerator:
         report = EvaluationReport(
             model_name=model_name,
             server_url=server_url,
+            hosting_provider=hosting_provider,
             evaluation_mode=mode,
             test_suite_name=test_suite_name,
             hardware_info=hardware_info,

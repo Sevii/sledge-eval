@@ -11,7 +11,7 @@ from .evaluator import (
     TextEvaluationSuite,
     TextEvaluationResult,
 )
-from .config import EvalConfig, ServerConfig, GeminiConfig, TestSuiteConfig, ReportConfig
+from .config import EvalConfig, ServerConfig, GeminiConfig, OpenRouterConfig, TestSuiteConfig, ReportConfig
 from .logging import get_logger, configure_root_logger, LoggerMixin
 # Optional imports for evaluators with dependencies
 try:
@@ -30,11 +30,34 @@ try:
 except ImportError:
     GeminiAnkiEvaluator = None
 
+try:
+    from .openrouter_evaluator import OpenRouterEvaluator
+except ImportError:
+    OpenRouterEvaluator = None
+
+try:
+    from .openrouter_text_evaluator import OpenRouterTextEvaluator
+except ImportError:
+    OpenRouterTextEvaluator = None
+
+try:
+    from .openrouter_anki_evaluator import OpenRouterAnkiEvaluator
+except ImportError:
+    OpenRouterAnkiEvaluator = None
+
 from .server_evaluator import ServerEvaluator
 from .anki_evaluator import AnkiLargeToolSetEvaluator
 from .text_evaluator import TextEvaluator
 from .text_server_evaluator import TextServerEvaluator
 from .hardware_detector import HardwareInfo, HardwareDetector
+from .latency_evaluator import (
+    LatencyEvaluator,
+    LatencyMetrics,
+    LatencyTestResult,
+    LatencyBenchmarkReport,
+    LatencyBenchmarkTest,
+    LatencyBenchmarkSuite,
+)
 
 __version__ = "0.1.0"
 
@@ -48,7 +71,14 @@ __all__ = [
     "GeminiConfig",
     "HardwareDetector",
     "HardwareInfo",
+    "LatencyBenchmarkReport",
+    "LatencyBenchmarkSuite",
+    "LatencyBenchmarkTest",
+    "LatencyEvaluator",
+    "LatencyMetrics",
+    "LatencyTestResult",
     "LoggerMixin",
+    "OpenRouterConfig",
     "ReportConfig",
     "ServerConfig",
     "ServerEvaluator",
@@ -80,3 +110,15 @@ if GeminiTextEvaluator is not None:
 # Add GeminiAnkiEvaluator to __all__ only if it was successfully imported
 if GeminiAnkiEvaluator is not None:
     __all__.append("GeminiAnkiEvaluator")
+
+# Add OpenRouterEvaluator to __all__ only if it was successfully imported
+if OpenRouterEvaluator is not None:
+    __all__.append("OpenRouterEvaluator")
+
+# Add OpenRouterTextEvaluator to __all__ only if it was successfully imported
+if OpenRouterTextEvaluator is not None:
+    __all__.append("OpenRouterTextEvaluator")
+
+# Add OpenRouterAnkiEvaluator to __all__ only if it was successfully imported
+if OpenRouterAnkiEvaluator is not None:
+    __all__.append("OpenRouterAnkiEvaluator")

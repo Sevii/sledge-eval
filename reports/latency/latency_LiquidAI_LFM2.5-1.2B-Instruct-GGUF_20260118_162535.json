@@ -1,0 +1,663 @@
+{
+  "model_name": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+  "server_url": "http://localhost:8080",
+  "timestamp": "2026-01-18T16:25:35.327682",
+  "total_tests": 13,
+  "tests_meeting_target": 0,
+  "target_hit_rate": 0.0,
+  "target_latency_ms": 100.0,
+  "avg_latency_ms": 495.52115400281485,
+  "min_latency_ms": 393.3260000048904,
+  "max_latency_ms": 605.7924590131734,
+  "p50_latency_ms": 483.43920800834894,
+  "p95_latency_ms": 600.481633405434,
+  "p99_latency_ms": 604.7302938916255,
+  "avg_tokens_per_second": 0.0,
+  "max_tokens_per_second": 0.0,
+  "avg_ttft_ms": null,
+  "min_ttft_ms": null,
+  "max_ttft_ms": null,
+  "results_by_category": {
+    "baseline": {
+      "count": 5,
+      "avg_latency_ms": 501.03977500402834,
+      "min_latency_ms": 393.3260000048904,
+      "max_latency_ms": 605.7924590131734,
+      "meeting_target": 0,
+      "target_rate": 0.0
+    },
+    "prefix_injection": {
+      "count": 3,
+      "avg_latency_ms": 480.55438933564193,
+      "min_latency_ms": 409.2187920032302,
+      "max_latency_ms": 519.66583399917,
+      "meeting_target": 0,
+      "target_rate": 0.0
+    },
+    "short_fields": {
+      "count": 3,
+      "avg_latency_ms": 511.39822233623516,
+      "min_latency_ms": 467.2068750078324,
+      "max_latency_ms": 596.9410830002744,
+      "meeting_target": 0,
+      "target_rate": 0.0
+    },
+    "combined_optimizations": {
+      "count": 2,
+      "avg_latency_ms": 480.35914600040996,
+      "min_latency_ms": 477.279083992471,
+      "max_latency_ms": 483.43920800834894,
+      "meeting_target": 0,
+      "target_rate": 0.0
+    }
+  },
+  "test_results": [
+    {
+      "test_id": "latency_baseline_001",
+      "passed": false,
+      "voice_command": "Turn on the living room lights",
+      "category": "baseline",
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 583.7042909988668,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 44,
+        "expected_output_tokens": 15,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 483.7042909988668,
+        "meets_target": false,
+        "optimization_category": "baseline",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Baseline: Simple light control (~15 output tokens)",
+      "tags": [
+        "latency",
+        "baseline",
+        "simple",
+        "lights"
+      ]
+    },
+    {
+      "test_id": "latency_baseline_002",
+      "passed": false,
+      "voice_command": "What's the weather like in San Francisco?",
+      "category": "baseline",
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "San Francisco",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "San Francisco"
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 490.87900000449736,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 33,
+        "expected_output_tokens": 12,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 390.87900000449736,
+        "meets_target": false,
+        "optimization_category": "baseline",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Baseline: Weather query (~12 output tokens)",
+      "tags": [
+        "latency",
+        "baseline",
+        "simple",
+        "weather"
+      ]
+    },
+    {
+      "test_id": "latency_baseline_003",
+      "passed": false,
+      "voice_command": "Set the thermostat to 72 degrees",
+      "category": "baseline",
+      "predicted_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 605.7924590131734,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 44,
+        "expected_output_tokens": 18,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 505.79245901317336,
+        "meets_target": false,
+        "optimization_category": "baseline",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Baseline: Temperature control (~18 output tokens)",
+      "tags": [
+        "latency",
+        "baseline",
+        "simple",
+        "temperature"
+      ]
+    },
+    {
+      "test_id": "latency_baseline_004",
+      "passed": false,
+      "voice_command": "Play some jazz music",
+      "category": "baseline",
+      "predicted_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "artist": "Miles Davis"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {
+            "playlist": "jazz"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 431.49712499871384,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 30,
+        "expected_output_tokens": 10,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 331.49712499871384,
+        "meets_target": false,
+        "optimization_category": "baseline",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Baseline: Music playback (~10 output tokens)",
+      "tags": [
+        "latency",
+        "baseline",
+        "simple",
+        "music"
+      ]
+    },
+    {
+      "test_id": "latency_baseline_005",
+      "passed": false,
+      "voice_command": "Turn up the volume",
+      "category": "baseline",
+      "predicted_tool_calls": [
+        {
+          "name": "adjust_volume",
+          "arguments": {
+            "action": "increase"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "adjust_volume",
+          "arguments": {
+            "action": "increase"
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 393.3260000048904,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 27,
+        "expected_output_tokens": 10,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 293.3260000048904,
+        "meets_target": false,
+        "optimization_category": "baseline",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Baseline: Volume control (~10 output tokens)",
+      "tags": [
+        "latency",
+        "baseline",
+        "simple",
+        "volume"
+      ]
+    },
+    {
+      "test_id": "latency_prefix_001",
+      "passed": false,
+      "voice_command": "Turn on the living room lights",
+      "category": "prefix_injection",
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 512.7785420045257,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 34,
+        "expected_output_tokens": 12,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 412.77854200452566,
+        "meets_target": false,
+        "optimization_category": "prefix_injection",
+        "prefix_used": "{\"tool\":\""
+      },
+      "error": null,
+      "description": "Prefix-injected: Model starts mid-JSON (~12 output tokens)",
+      "tags": [
+        "latency",
+        "prefix_injection",
+        "optimized",
+        "lights"
+      ]
+    },
+    {
+      "test_id": "latency_prefix_002",
+      "passed": false,
+      "voice_command": "What's the weather in New York?",
+      "category": "prefix_injection",
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "New York"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 409.2187920032302,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 24,
+        "expected_output_tokens": 9,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 309.2187920032302,
+        "meets_target": false,
+        "optimization_category": "prefix_injection",
+        "prefix_used": "{\"tool\":\""
+      },
+      "error": null,
+      "description": "Prefix-injected: Weather query with prefix (~9 output tokens)",
+      "tags": [
+        "latency",
+        "prefix_injection",
+        "optimized",
+        "weather"
+      ]
+    },
+    {
+      "test_id": "latency_prefix_003",
+      "passed": false,
+      "voice_command": "Set temperature to 68",
+      "category": "prefix_injection",
+      "predicted_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 68,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 68
+          }
+        }
+      ],
+      "tool_call_correct": true,
+      "latency": {
+        "total_latency_ms": 519.66583399917,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 34,
+        "expected_output_tokens": 15,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 419.66583399917,
+        "meets_target": false,
+        "optimization_category": "prefix_injection",
+        "prefix_used": "{\"tool\":\""
+      },
+      "error": null,
+      "description": "Prefix-injected: Temperature with prefix (~15 output tokens)",
+      "tags": [
+        "latency",
+        "prefix_injection",
+        "optimized",
+        "temperature"
+      ]
+    },
+    {
+      "test_id": "latency_short_001",
+      "passed": false,
+      "voice_command": "Lights on living room",
+      "category": "short_fields",
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "lt",
+          "arguments": {
+            "r": "living room",
+            "a": "on"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 470.04670900059864,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 33,
+        "expected_output_tokens": 8,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 370.04670900059864,
+        "meets_target": false,
+        "optimization_category": "short_fields",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Short fields: Minimal token tool call (~8 output tokens)",
+      "tags": [
+        "latency",
+        "short_fields",
+        "optimized",
+        "lights"
+      ]
+    },
+    {
+      "test_id": "latency_short_002",
+      "passed": false,
+      "voice_command": "Weather San Francisco",
+      "category": "short_fields",
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "San Francisco",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "wx",
+          "arguments": {
+            "l": "San Francisco"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 467.2068750078324,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 33,
+        "expected_output_tokens": 6,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 367.2068750078324,
+        "meets_target": false,
+        "optimization_category": "short_fields",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Short fields: Minimal weather query (~6 output tokens)",
+      "tags": [
+        "latency",
+        "short_fields",
+        "optimized",
+        "weather"
+      ]
+    },
+    {
+      "test_id": "latency_short_003",
+      "passed": false,
+      "voice_command": "Temp 72",
+      "category": "short_fields",
+      "predicted_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {
+            "temperature": 72,
+            "unit": "fahrenheit"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "tmp",
+          "arguments": {
+            "t": 72
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 596.9410830002744,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 44,
+        "expected_output_tokens": 5,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 496.9410830002744,
+        "meets_target": false,
+        "optimization_category": "short_fields",
+        "prefix_used": null
+      },
+      "error": null,
+      "description": "Short fields: Minimal temperature (~5 output tokens)",
+      "tags": [
+        "latency",
+        "short_fields",
+        "optimized",
+        "temperature"
+      ]
+    },
+    {
+      "test_id": "latency_combined_001",
+      "passed": false,
+      "voice_command": "Lights on bedroom",
+      "category": "combined_optimizations",
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "bedroom",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "lt",
+          "arguments": {
+            "r": "bedroom",
+            "a": "on"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 483.43920800834894,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 33,
+        "expected_output_tokens": 5,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 383.43920800834894,
+        "meets_target": false,
+        "optimization_category": "combined_optimizations",
+        "prefix_used": "{\"fn\":\""
+      },
+      "error": null,
+      "description": "Combined: Prefix + short fields (~5 output tokens)",
+      "tags": [
+        "latency",
+        "combined",
+        "optimized",
+        "lights"
+      ]
+    },
+    {
+      "test_id": "latency_combined_002",
+      "passed": false,
+      "voice_command": "Weather Tokyo",
+      "category": "combined_optimizations",
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "Tokyo",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "wx",
+          "arguments": {
+            "l": "Tokyo"
+          }
+        }
+      ],
+      "tool_call_correct": false,
+      "latency": {
+        "total_latency_ms": 477.279083992471,
+        "ttft_ms": null,
+        "generation_time_ms": null,
+        "input_tokens": null,
+        "output_tokens": 33,
+        "expected_output_tokens": 4,
+        "tokens_per_second": null,
+        "ms_per_token": null,
+        "target_latency_ms": 100.0,
+        "latency_gap_ms": 377.279083992471,
+        "meets_target": false,
+        "optimization_category": "combined_optimizations",
+        "prefix_used": "{\"fn\":\""
+      },
+      "error": null,
+      "description": "Combined: Prefix + short fields weather (~4 output tokens)",
+      "tags": [
+        "latency",
+        "combined",
+        "optimized",
+        "weather"
+      ]
+    }
+  ],
+  "tool_call_accuracy": 46.15384615384615
+}

@@ -1,0 +1,290 @@
+{
+  "name": "Latency Benchmark Suite",
+  "description": "Experimental test suite for measuring and optimizing inference latency. Target: 100ms for 4B parameter models. Tests include baseline, prefix-injected, and short-field variants to measure optimization impact.",
+  "version": "1.0.0",
+  "target_latency_ms": 100,
+  "metadata": {
+    "target_ttft_ms": 20,
+    "target_generation_ms": 80,
+    "target_throughput_tps": 375,
+    "optimization_techniques": [
+      "prefix_injection",
+      "short_field_names",
+      "quantization",
+      "speculative_decoding",
+      "grammar_constrained"
+    ]
+  },
+  "tests": [
+    {
+      "id": "latency_baseline_001",
+      "category": "baseline",
+      "voice_command": "Turn on the living room lights",
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {"room": "living room", "action": "turn_on"}
+        }
+      ],
+      "description": "Baseline: Simple light control (~15 output tokens)",
+      "tags": ["latency", "baseline", "simple", "lights"],
+      "expected_token_count": 15
+    },
+    {
+      "id": "latency_baseline_002",
+      "category": "baseline",
+      "voice_command": "What's the weather like in San Francisco?",
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {"location": "San Francisco"}
+        }
+      ],
+      "description": "Baseline: Weather query (~12 output tokens)",
+      "tags": ["latency", "baseline", "simple", "weather"],
+      "expected_token_count": 12
+    },
+    {
+      "id": "latency_baseline_003",
+      "category": "baseline",
+      "voice_command": "Set the thermostat to 72 degrees",
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {"temperature": 72, "unit": "fahrenheit"}
+        }
+      ],
+      "description": "Baseline: Temperature control (~18 output tokens)",
+      "tags": ["latency", "baseline", "simple", "temperature"],
+      "expected_token_count": 18
+    },
+    {
+      "id": "latency_baseline_004",
+      "category": "baseline",
+      "voice_command": "Play some jazz music",
+      "expected_tool_calls": [
+        {
+          "name": "play_music",
+          "arguments": {"playlist": "jazz"}
+        }
+      ],
+      "description": "Baseline: Music playback (~10 output tokens)",
+      "tags": ["latency", "baseline", "simple", "music"],
+      "expected_token_count": 10
+    },
+    {
+      "id": "latency_baseline_005",
+      "category": "baseline",
+      "voice_command": "Turn up the volume",
+      "expected_tool_calls": [
+        {
+          "name": "adjust_volume",
+          "arguments": {"action": "increase"}
+        }
+      ],
+      "description": "Baseline: Volume control (~10 output tokens)",
+      "tags": ["latency", "baseline", "simple", "volume"],
+      "expected_token_count": 10
+    },
+    {
+      "id": "latency_prefix_001",
+      "category": "prefix_injection",
+      "voice_command": "Turn on the living room lights",
+      "system_prefix": "{\"tool\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {"room": "living room", "action": "turn_on"}
+        }
+      ],
+      "description": "Prefix-injected: Model starts mid-JSON (~12 output tokens)",
+      "tags": ["latency", "prefix_injection", "optimized", "lights"],
+      "expected_token_count": 12,
+      "optimization_savings_tokens": 3
+    },
+    {
+      "id": "latency_prefix_002",
+      "category": "prefix_injection",
+      "voice_command": "What's the weather in New York?",
+      "system_prefix": "{\"tool\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {"location": "New York"}
+        }
+      ],
+      "description": "Prefix-injected: Weather query with prefix (~9 output tokens)",
+      "tags": ["latency", "prefix_injection", "optimized", "weather"],
+      "expected_token_count": 9,
+      "optimization_savings_tokens": 3
+    },
+    {
+      "id": "latency_prefix_003",
+      "category": "prefix_injection",
+      "voice_command": "Set temperature to 68",
+      "system_prefix": "{\"tool\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "set_temperature",
+          "arguments": {"temperature": 68}
+        }
+      ],
+      "description": "Prefix-injected: Temperature with prefix (~15 output tokens)",
+      "tags": ["latency", "prefix_injection", "optimized", "temperature"],
+      "expected_token_count": 15,
+      "optimization_savings_tokens": 3
+    },
+    {
+      "id": "latency_short_001",
+      "category": "short_fields",
+      "voice_command": "Lights on living room",
+      "expected_tool_calls": [
+        {
+          "name": "lt",
+          "arguments": {"r": "living room", "a": "on"}
+        }
+      ],
+      "description": "Short fields: Minimal token tool call (~8 output tokens)",
+      "tags": ["latency", "short_fields", "optimized", "lights"],
+      "expected_token_count": 8,
+      "field_mapping": {
+        "lt": "control_lights",
+        "r": "room",
+        "a": "action"
+      }
+    },
+    {
+      "id": "latency_short_002",
+      "category": "short_fields",
+      "voice_command": "Weather San Francisco",
+      "expected_tool_calls": [
+        {
+          "name": "wx",
+          "arguments": {"l": "San Francisco"}
+        }
+      ],
+      "description": "Short fields: Minimal weather query (~6 output tokens)",
+      "tags": ["latency", "short_fields", "optimized", "weather"],
+      "expected_token_count": 6,
+      "field_mapping": {
+        "wx": "get_weather",
+        "l": "location"
+      }
+    },
+    {
+      "id": "latency_short_003",
+      "category": "short_fields",
+      "voice_command": "Temp 72",
+      "expected_tool_calls": [
+        {
+          "name": "tmp",
+          "arguments": {"t": 72}
+        }
+      ],
+      "description": "Short fields: Minimal temperature (~5 output tokens)",
+      "tags": ["latency", "short_fields", "optimized", "temperature"],
+      "expected_token_count": 5,
+      "field_mapping": {
+        "tmp": "set_temperature",
+        "t": "temperature"
+      }
+    },
+    {
+      "id": "latency_combined_001",
+      "category": "combined_optimizations",
+      "voice_command": "Lights on bedroom",
+      "system_prefix": "{\"fn\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "lt",
+          "arguments": {"r": "bedroom", "a": "on"}
+        }
+      ],
+      "description": "Combined: Prefix + short fields (~5 output tokens)",
+      "tags": ["latency", "combined", "optimized", "lights"],
+      "expected_token_count": 5
+    },
+    {
+      "id": "latency_combined_002",
+      "category": "combined_optimizations",
+      "voice_command": "Weather Tokyo",
+      "system_prefix": "{\"fn\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "wx",
+          "arguments": {"l": "Tokyo"}
+        }
+      ],
+      "description": "Combined: Prefix + short fields weather (~4 output tokens)",
+      "tags": ["latency", "combined", "optimized", "weather"],
+      "expected_token_count": 4
+    },
+    {
+      "id": "latency_multi_001",
+      "category": "multi_tool",
+      "voice_command": "Turn on lights and set temperature to 70",
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {"room": "living room", "action": "turn_on"}
+        },
+        {
+          "name": "set_temperature",
+          "arguments": {"temperature": 70}
+        }
+      ],
+      "description": "Multi-tool: Two sequential tool calls (~30 output tokens)",
+      "tags": ["latency", "baseline", "multi_tool", "complex"],
+      "expected_token_count": 30
+    },
+    {
+      "id": "latency_multi_short_001",
+      "category": "multi_tool_short",
+      "voice_command": "Lights on, temp 70",
+      "system_prefix": "[{\"fn\":\"",
+      "expected_tool_calls": [
+        {
+          "name": "lt",
+          "arguments": {"a": "on"}
+        },
+        {
+          "name": "tmp",
+          "arguments": {"t": 70}
+        }
+      ],
+      "description": "Multi-tool short: Two calls with optimizations (~12 output tokens)",
+      "tags": ["latency", "combined", "multi_tool", "optimized"],
+      "expected_token_count": 12
+    },
+    {
+      "id": "latency_speculative_001",
+      "category": "speculative_friendly",
+      "voice_command": "Turn on the kitchen lights",
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {"room": "kitchen", "action": "turn_on"}
+        }
+      ],
+      "description": "Speculative-friendly: Predictable structure for draft model",
+      "tags": ["latency", "speculative", "predictable"],
+      "expected_token_count": 15,
+      "speculative_notes": "High token predictability - ideal for speculative decoding"
+    },
+    {
+      "id": "latency_speculative_002",
+      "category": "speculative_friendly",
+      "voice_command": "Turn off the bedroom lights",
+      "expected_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {"room": "bedroom", "action": "turn_off"}
+        }
+      ],
+      "description": "Speculative-friendly: Nearly identical structure to 001",
+      "tags": ["latency", "speculative", "predictable"],
+      "expected_token_count": 15,
+      "speculative_notes": "Very similar to 001, draft model should predict well"
+    }
+  ]
+}

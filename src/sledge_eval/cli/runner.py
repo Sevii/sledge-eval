@@ -58,6 +58,10 @@ class EvaluationRunner(ABC):
         """Check if the evaluation backend is available."""
         pass
 
+    def get_hosting_provider(self) -> Optional[str]:
+        """Get the hosting provider name. Override in subclasses."""
+        return None
+
     def get_custom_evaluator(self, custom_tools: List[Dict[str, Any]]) -> Evaluator:
         """
         Get an evaluator with custom tools.
@@ -122,6 +126,7 @@ class EvaluationRunner(ABC):
             model_name=self.model_name,
             mode="single",
             server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
         )
         self.report_generator.print_report_paths(report_paths)
 
@@ -171,6 +176,7 @@ class EvaluationRunner(ABC):
             model_name=self.model_name,
             mode="suite",
             server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
             test_suite_name=test_suite.name,
         )
         self.report_generator.print_report_paths(report_paths)
@@ -249,6 +255,7 @@ class EvaluationRunner(ABC):
             model_name=self.model_name,
             mode="custom",
             server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
         )
         self.report_generator.print_report_paths(report_paths)
 
@@ -310,6 +317,7 @@ class EvaluationRunner(ABC):
             model_name=self.model_name,
             mode="anki_large_toolset",
             server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
             test_suite_name=test_suite.name,
         )
         self.report_generator.print_report_paths(report_paths)
@@ -558,6 +566,7 @@ class EvaluationRunner(ABC):
             model_name=self.model_name,
             mode="all",
             server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
         )
         self.report_generator.print_report_paths(report_paths)
 

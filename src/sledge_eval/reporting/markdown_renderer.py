@@ -60,6 +60,8 @@ class MarkdownRenderer:
         lines.append("")
         lines.append(f"**Generated:** {report.timestamp.strftime('%B %d, %Y at %I:%M:%S %p')}")
         lines.append(f"**Model:** `{report.display_name}`")
+        if report.hosting_provider:
+            lines.append(f"**Provider:** {report.hosting_provider}")
         lines.append(f"**Server URL:** {report.server_url or 'N/A'}")
         lines.append(f"**Evaluation Mode:** {report.evaluation_mode}")
         if report.test_suite_name:

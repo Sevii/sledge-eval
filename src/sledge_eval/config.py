@@ -47,6 +47,45 @@ class GeminiConfig(BaseModel):
         return None
 
 
+class OpenRouterConfig(BaseModel):
+    """Configuration for OpenRouter API connection."""
+
+    model: str = Field(..., description="OpenRouter model ID (e.g., 'anthropic/claude-3-haiku')")
+    api_key: Optional[str] = Field(default=None, description="API key (defaults to env var)")
+    timeout: int = Field(default=120, description="Request timeout in seconds")
+    debug: bool = Field(default=False, description="Enable debug logging")
+    site_url: Optional[str] = Field(default=None, description="Optional site URL for ranking")
+    app_name: str = Field(default="sledge-eval", description="App name for ranking")
+
+    @property
+    def base_url(self) -> str:
+        """Get the OpenRouter API base URL."""
+        return "https://openrouter.ai/api/v1"
+
+    def get_api_key(self) -> Optional[str]:
+        """Get API key from config, environment variables, or .env file."""
+        if self.api_key:
+            return self.api_key
+
+        # Try environment variable
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if api_key:
+            return api_key
+
+        # Try .env file
+        env_path = Path.cwd() / ".env"
+        if env_path.exists():
+            with open(env_path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        key, value = line.split("=", 1)
+                        if key.strip() == "OPENROUTER_API_KEY":
+                            return value.strip()
+
+        return None
+
+
 class TestSuiteConfig(BaseModel):
     """Configuration for test suite locations."""
 
