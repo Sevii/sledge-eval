@@ -1,0 +1,618 @@
+{
+  "name": "Sork Voice Commands",
+  "tests": [
+    {
+      "id": "sork_001",
+      "voice_command": "Describe the room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_002",
+      "voice_command": "Pick up the emergency suit.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "emergency suit"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_003",
+      "voice_command": "Pick up the emergency space suit.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "emergency space suit"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_004",
+      "voice_command": "Inventory.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_005",
+      "voice_command": "See you at emergency space soon.",
+      "expected_tool_calls": [
+        {
+          "name": "help",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "meta"
+      ]
+    },
+    {
+      "id": "sork_006",
+      "voice_command": "examine the emergency spacesuit.",
+      "expected_tool_calls": [
+        {
+          "name": "examine",
+          "arguments": {
+            "target": "emergency spacesuit"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_007",
+      "voice_command": "There's the room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_008",
+      "voice_command": "Pick up the oxygen tank.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_009",
+      "voice_command": "Drop the oxygen tank.",
+      "expected_tool_calls": [
+        {
+          "name": "drop",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_010",
+      "voice_command": "inventory.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_011",
+      "voice_command": "Fully from the room.",
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_012",
+      "voice_command": "carrying.",
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_013",
+      "voice_command": "Move North.",
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_014",
+      "voice_command": "the room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_015",
+      "voice_command": "Pick up the ore sample.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "ore sample"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_016",
+      "voice_command": "Search the room.",
+      "expected_tool_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "target": "room"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_017",
+      "voice_command": "Pick up the valuable ore sample.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "valuable ore sample"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_018",
+      "voice_command": "What's in my inventory?",
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_019",
+      "voice_command": "with West.",
+      "expected_tool_calls": [
+        {
+          "name": "go_west",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_020",
+      "voice_command": "of the room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_021",
+      "voice_command": "Pick up the credit chip.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "credit chip"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_022",
+      "voice_command": "the pocket knife.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "pocket knife"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_023",
+      "voice_command": "Search the lockers.",
+      "expected_tool_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "target": "locker"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_024",
+      "voice_command": "Peace.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_025",
+      "voice_command": "MOVE EAST.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_026",
+      "voice_command": "Move north.",
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_027",
+      "voice_command": "[BLANK_AUDIO]",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_028",
+      "voice_command": "Move East.",
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_029",
+      "voice_command": "West.",
+      "expected_tool_calls": [
+        {
+          "name": "go_west",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_030",
+      "voice_command": "East.",
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_031",
+      "voice_command": "Move eastward.",
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_032",
+      "voice_command": "Pick up the welding torch.",
+      "expected_tool_calls": [
+        {
+          "name": "go_up",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_033",
+      "voice_command": "Grab the welding torch.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "welding"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_034",
+      "voice_command": "Drop the welding torch.",
+      "expected_tool_calls": [
+        {
+          "name": "drop",
+          "arguments": {
+            "item": "welding"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_035",
+      "voice_command": "North.",
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_036",
+      "voice_command": "pick up the magnetic boots.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "magnetic boots"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_037",
+      "voice_command": "The room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_038",
+      "voice_command": "Pick up the wallet.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "wallet"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_039",
+      "voice_command": "room.",
+      "expected_tool_calls": [
+        {
+          "name": "examine",
+          "arguments": {
+            "target": "room"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_040",
+      "voice_command": "The oxygen tank.",
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_041",
+      "voice_command": "Look around the room.",
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_042",
+      "voice_command": "around the room.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "sork_043",
+      "voice_command": "Move upwards.",
+      "expected_tool_calls": [
+        {
+          "name": "go_up",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    }
+  ],
+  "description": "Voice command test suite generated from Sork gameplay logs"
+}

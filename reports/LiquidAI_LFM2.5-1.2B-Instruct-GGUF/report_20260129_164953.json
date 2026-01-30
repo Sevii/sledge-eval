@@ -1,0 +1,1208 @@
+{
+  "timestamp": "2026-01-29 16:49:53.874126",
+  "model_name": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+  "server_url": "http://localhost:8080",
+  "hosting_provider": null,
+  "evaluation_mode": "suite",
+  "test_suite_name": "Sork Voice Commands",
+  "hardware_info": {
+    "gpu_name": "Apple M3",
+    "gpu_family": "MTLGPUFamilyApple9",
+    "metal_backend": true,
+    "has_unified_memory": true,
+    "has_bfloat": true,
+    "has_tensor": false,
+    "recommended_max_working_set_size_mb": 17179.89,
+    "total_memory_mb": null,
+    "free_memory_mb": null,
+    "model_memory_mb": null,
+    "context_memory_mb": null,
+    "compute_memory_mb": null,
+    "gpu_memory_mb": 17179.89,
+    "n_threads": null,
+    "n_threads_batch": null,
+    "total_threads": null,
+    "http_server_threads": null,
+    "model_size_gb": null,
+    "model_params_b": null,
+    "context_size": null,
+    "batch_size": null,
+    "os_name": "Darwin",
+    "os_version": "25.2.0",
+    "architecture": "arm64",
+    "processor": "arm",
+    "llama_cpp_build": null,
+    "llama_cpp_commit": null,
+    "compiler": null
+  },
+  "total_tests": 43,
+  "passed_tests": 1,
+  "failed_tests": 42,
+  "pass_rate": 2.3255813953488373,
+  "total_evaluation_time_ms": 18711.6219997406,
+  "test_results": [
+    {
+      "test_id": "sork_001",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 830.2929401397705,
+      "voice_command": "Describe the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_002",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "emergency suit"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 447.50094413757324,
+      "voice_command": "Pick up the emergency suit.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_003",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "emergency space suit"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 567.2988891601562,
+      "voice_command": "Pick up the emergency space suit.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_004",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "New York",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 443.3250427246094,
+      "voice_command": "Inventory.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_005",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "help",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 418.7161922454834,
+      "voice_command": "See you at emergency space soon.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "meta"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_006",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "examine",
+          "arguments": {
+            "target": "emergency spacesuit"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 543.0490970611572,
+      "voice_command": "examine the emergency spacesuit.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_007",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 405.68995475769043,
+      "voice_command": "There's the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_008",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 467.3037528991699,
+      "voice_command": "Pick up the oxygen tank.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_009",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "drop",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 303.77912521362305,
+      "voice_command": "Drop the oxygen tank.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_010",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "New York",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 387.23087310791016,
+      "voice_command": "inventory.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_011",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_off"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 508.1362724304199,
+      "voice_command": "Fully from the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_012",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 341.54605865478516,
+      "voice_command": "carrying.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_013",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 427.95491218566895,
+      "voice_command": "Move North.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_014",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 397.4342346191406,
+      "voice_command": "the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_015",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "ore sample"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 467.2670364379883,
+      "voice_command": "Pick up the ore sample.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_016",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "target": "room"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 402.512788772583,
+      "voice_command": "Search the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_017",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "valuable ore sample"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 452.6979923248291,
+      "voice_command": "Pick up the valuable ore sample.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_018",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "Springfield",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "inventory",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 408.7817668914795,
+      "voice_command": "What's in my inventory?",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_019",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "West",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_west",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 375.1699924468994,
+      "voice_command": "with West.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_020",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 399.9829292297363,
+      "voice_command": "of the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_021",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "credit chip"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 469.57898139953613,
+      "voice_command": "Pick up the credit chip.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_022",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "kitchen",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "pocket knife"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 387.71605491638184,
+      "voice_command": "the pocket knife.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_023",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "target": "locker"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 469.5560932159424,
+      "voice_command": "Search the lockers.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_024",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "San Francisco",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 380.3598880767822,
+      "voice_command": "Peace.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_025",
+      "passed": true,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 419.2178249359131,
+      "voice_command": "MOVE EAST.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_026",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 397.982120513916,
+      "voice_command": "Move north.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_027",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "New York",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 395.28894424438477,
+      "voice_command": "[BLANK_AUDIO]",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_028",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 459.1250419616699,
+      "voice_command": "Move East.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_029",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "West",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_west",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 372.12109565734863,
+      "voice_command": "West.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_030",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "East",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 375.2560615539551,
+      "voice_command": "East.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_031",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 463.6878967285156,
+      "voice_command": "Move eastward.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_032",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "go_up",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 459.96904373168945,
+      "voice_command": "Pick up the welding torch.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_033",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "welding"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 457.1359157562256,
+      "voice_command": "Grab the welding torch.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_034",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "drop",
+          "arguments": {
+            "item": "welding"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 441.709041595459,
+      "voice_command": "Drop the welding torch.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_035",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "get_weather",
+          "arguments": {
+            "location": "North",
+            "timeframe": "now"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_north",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 370.58305740356445,
+      "voice_command": "North.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_036",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "magnetic boots"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 459.3980312347412,
+      "voice_command": "pick up the magnetic boots.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_037",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 399.80435371398926,
+      "voice_command": "The room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_038",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "wallet"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 504.14586067199707,
+      "voice_command": "Pick up the wallet.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_039",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "examine",
+          "arguments": {
+            "target": "room"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 400.7418155670166,
+      "voice_command": "room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_040",
+      "passed": false,
+      "predicted_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "take",
+          "arguments": {
+            "item": "oxygen tank"
+          }
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 439.133882522583,
+      "voice_command": "The oxygen tank.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "items"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_041",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "look",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 400.38418769836426,
+      "voice_command": "Look around the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "inspection"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_042",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "turn_on"
+          }
+        }
+      ],
+      "expected_tool_calls": [],
+      "error": null,
+      "evaluation_time_ms": 398.38528633117676,
+      "voice_command": "around the room.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    },
+    {
+      "test_id": "sork_043",
+      "passed": false,
+      "predicted_tool_calls": [
+        {
+          "name": "control_lights",
+          "arguments": {
+            "room": "living room",
+            "action": "brighten"
+          }
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "name": "go_up",
+          "arguments": {}
+        }
+      ],
+      "error": null,
+      "evaluation_time_ms": 394.6707248687744,
+      "voice_command": "Move upwards.",
+      "test_description": null,
+      "tags": [
+        "sork",
+        "navigation"
+      ],
+      "predicted_answer": null,
+      "expected_answer": null,
+      "evaluation_type": null
+    }
+  ],
+  "errors": [],
+  "tags_tested": [
+    "sork",
+    "inspection",
+    "items",
+    "edge_case",
+    "unrecognized",
+    "meta",
+    "navigation"
+  ],
+  "tag_performance": {
+    "sork": {
+      "passed": 1,
+      "failed": 42,
+      "total": 43
+    },
+    "inspection": {
+      "passed": 0,
+      "failed": 13,
+      "total": 13
+    },
+    "items": {
+      "passed": 0,
+      "failed": 13,
+      "total": 13
+    },
+    "edge_case": {
+      "passed": 1,
+      "failed": 5,
+      "total": 6
+    },
+    "unrecognized": {
+      "passed": 1,
+      "failed": 5,
+      "total": 6
+    },
+    "meta": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1
+    },
+    "navigation": {
+      "passed": 0,
+      "failed": 10,
+      "total": 10
+    }
+  }
+}
