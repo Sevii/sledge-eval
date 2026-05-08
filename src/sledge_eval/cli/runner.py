@@ -12,6 +12,10 @@ from ..evaluator import (
     ToolCall,
     VoiceCommandTest,
     TextEvaluationSuite,
+    PromptsFile,
+    PromptDefinition,
+    PromptComparisonResult,
+    PromptComparisonReport,
 )
 from .report_generator import ReportGenerator
 
@@ -19,7 +23,7 @@ from .report_generator import ReportGenerator
 # Default test file paths
 DEFAULT_TEST_SUITE = Path("tests/test_data/example_test_suite.json")
 DEFAULT_ANKI_TEST_SUITE = Path("tests/test_data/anki_large_toolset_suite.json")
-DEFAULT_TEXT_TEST_SUITE = Path("tests/test_data/comprehensive_text_suite.json")
+DEFAULT_TEXT_TEST_SUITE = Path("tests/test_data/letter_counting_suite.json")
 
 
 class EvaluationRunner(ABC):
@@ -799,3 +803,206 @@ class EvaluationRunner(ABC):
                 },
             }
         ]
+
+    # Prompt Comparison Methods
+
+    def get_evaluator_with_prompt(self, system_prompt: str) -> Evaluator:
+        """
+        Get an evaluator configured with a specific system prompt.
+
+        Override in subclasses to provide backend-specific evaluator creation.
+
+        Args:
+            system_prompt: The system prompt to use
+
+        Returns:
+            Evaluator instance configured with the given prompt
+        """
+        raise NotImplementedError("Subclasses must implement get_evaluator_with_prompt")
+
+    def load_prompts_file(self, prompts_path: Path) -> PromptsFile:
+        """
+        Load and parse a prompts file.
+
+        Args:
+            prompts_path: Path to the prompts JSON file
+
+        Returns:
+            PromptsFile object
+        """
+        import json
+
+        with open(prompts_path, "r") as f:
+            data = json.load(f)
+        return PromptsFile(**data)
+
+    def run_prompt_comparison(
+        self, prompts_file: Path, test_file: Optional[Path] = None
+    ) -> bool:
+        """
+        Run a test suite against multiple prompts and generate a comparison report.
+
+        Args:
+            prompts_file: Path to the prompts JSON file
+            test_file: Optional path to a test suite JSON file
+
+        Returns:
+            True if best prompt achieved 100% pass rate
+        """
+        self._print_header("Prompt Comparison Evaluation")
+
+        if not self._verify_connection():
+            return False
+
+        # Load prompts
+        print(f"\nLoading prompts from: {prompts_file}")
+        prompts = self.load_prompts_file(prompts_file)
+        print(f"Loaded: {prompts.name}")
+        if prompts.description:
+            print(f"Description: {prompts.description}")
+        print(f"Number of prompts to compare: {len(prompts.prompts)}")
+
+        # Load test suite
+        test_file = test_file or DEFAULT_TEST_SUITE
+        print(f"\nLoading test suite from: {test_file}")
+
+        # Use default evaluator to load test suite
+        base_evaluator = self.get_evaluator()
+        test_suite = base_evaluator.load_test_suite(test_file)
+        print(f"Loaded test suite: {test_suite.name}")
+        print(f"Number of tests: {len(test_suite.tests)}")
+
+        # Run tests for each prompt
+        prompt_results: List[PromptComparisonResult] = []
+
+        for i, prompt_def in enumerate(prompts.prompts, 1):
+            print(f"\n{'=' * 60}")
+            print(f"PROMPT {i}/{len(prompts.prompts)}: {prompt_def.name}")
+            print(f"{'=' * 60}")
+            print(f"System Prompt: {prompt_def.system_prompt[:100]}...")
+
+            # Get evaluator with this prompt
+            evaluator = self.get_evaluator_with_prompt(prompt_def.system_prompt)
+
+            # Run tests
+            results: List[EvaluationResult] = []
+            total_start_time = time.time()
+
+            for test in test_suite.tests:
+                print(f"  Testing: {test.id}")
+                result = evaluator.evaluate_test(test)
+                results.append(result)
+
+                status = "PASS" if result.passed else "FAIL"
+                time_str = f"{result.evaluation_time_ms:.1f}ms" if result.evaluation_time_ms else "N/A"
+                print(f"    {status} ({time_str})")
+
+            # Calculate stats for this prompt
+            total_time = (time.time() - total_start_time) * 1000
+            passed = sum(1 for r in results if r.passed)
+            failed = len(results) - passed
+            pass_rate = (passed / len(results) * 100) if results else 0
+            avg_time = total_time / len(results) if results else 0
+
+            prompt_result = PromptComparisonResult(
+                prompt_id=prompt_def.id,
+                prompt_name=prompt_def.name,
+                system_prompt=prompt_def.system_prompt,
+                total_tests=len(results),
+                passed_tests=passed,
+                failed_tests=failed,
+                pass_rate=pass_rate,
+                total_time_ms=total_time,
+                avg_time_ms=avg_time,
+                test_results=results,
+            )
+            prompt_results.append(prompt_result)
+
+            print(f"\n  Summary: {passed}/{len(results)} passed ({pass_rate:.1f}%)")
+
+        # Find best prompt
+        best_prompt = max(prompt_results, key=lambda p: (p.pass_rate, -p.avg_time_ms))
+
+        # Find variable test IDs (tests that passed with some prompts but failed with others)
+        variable_test_ids = self._find_variable_tests(prompt_results)
+
+        # Create comparison report
+        report = PromptComparisonReport(
+            model_name=self.model_name,
+            server_url=self.get_server_url(),
+            hosting_provider=self.get_hosting_provider(),
+            test_suite_name=test_suite.name,
+            prompts_file_name=prompts.name,
+            prompt_results=prompt_results,
+            best_prompt_id=best_prompt.prompt_id,
+            best_prompt_name=best_prompt.prompt_name,
+            variable_test_ids=variable_test_ids,
+        )
+
+        # Print summary
+        self._print_comparison_summary(report)
+
+        # Save report
+        report_paths = report.save_to_file(Path("."))
+        print(f"\nReports saved:")
+        print(f"  JSON: {report_paths['json']}")
+        print(f"  Markdown: {report_paths['markdown']}")
+
+        print("=" * 80)
+        return best_prompt.pass_rate == 100.0
+
+    def _find_variable_tests(
+        self, prompt_results: List[PromptComparisonResult]
+    ) -> List[str]:
+        """Find tests that passed with some prompts but failed with others."""
+        if not prompt_results:
+            return []
+
+        # Build a map of test_id -> list of (prompt_id, passed)
+        test_outcomes: Dict[str, List[bool]] = {}
+        for pr in prompt_results:
+            for result in pr.test_results:
+                if result.test_id not in test_outcomes:
+                    test_outcomes[result.test_id] = []
+                test_outcomes[result.test_id].append(result.passed)
+
+        # Find tests with mixed results
+        variable_tests = []
+        for test_id, outcomes in test_outcomes.items():
+            if len(set(outcomes)) > 1:  # Has both True and False
+                variable_tests.append(test_id)
+
+        return variable_tests
+
+    def _print_comparison_summary(self, report: PromptComparisonReport) -> None:
+        """Print the comparison summary to the console."""
+        print("\n" + "=" * 80)
+        print("PROMPT COMPARISON RESULTS")
+        print("=" * 80)
+
+        # Summary table
+        print("\n| Prompt | Pass Rate | Passed | Failed | Avg Time |")
+        print("|--------|-----------|--------|--------|----------|")
+
+        for pr in sorted(report.prompt_results, key=lambda x: (-x.pass_rate, x.avg_time_ms)):
+            best_marker = " (Best)" if pr.prompt_id == report.best_prompt_id else ""
+            print(
+                f"| {pr.prompt_name}{best_marker} | {pr.pass_rate:.1f}% | "
+                f"{pr.passed_tests} | {pr.failed_tests} | {pr.avg_time_ms:.1f}ms |"
+            )
+
+        # Variable tests
+        if report.variable_test_ids:
+            print(f"\nVariable Results ({len(report.variable_test_ids)} tests):")
+            print("These tests passed with some prompts but failed with others:")
+            for test_id in report.variable_test_ids:
+                outcomes = []
+                for pr in report.prompt_results:
+                    for result in pr.test_results:
+                        if result.test_id == test_id:
+                            status = "PASS" if result.passed else "FAIL"
+                            outcomes.append(f"{pr.prompt_name}: {status}")
+                            break
+                print(f"  {test_id}: {', '.join(outcomes)}")
+
+        print(f"\nBest Performing Prompt: {report.best_prompt_name}")

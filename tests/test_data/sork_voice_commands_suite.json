@@ -50,25 +50,25 @@
     {
       "id": "sork_004",
       "voice_command": "Inventory.",
-      "expected_tool_calls": [],
-      "tags": [
-        "sork",
-        "edge_case",
-        "unrecognized"
-      ]
-    },
-    {
-      "id": "sork_005",
-      "voice_command": "See you at emergency space soon.",
       "expected_tool_calls": [
         {
-          "name": "help",
+          "name": "inventory",
           "arguments": {}
         }
       ],
       "tags": [
         "sork",
-        "meta"
+        "inspection"
+      ]
+    },
+    {
+      "id": "sork_005",
+      "voice_command": "See you at emergency space soon.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
       ]
     },
     {
@@ -136,16 +136,6 @@
     {
       "id": "sork_010",
       "voice_command": "inventory.",
-      "expected_tool_calls": [],
-      "tags": [
-        "sork",
-        "edge_case",
-        "unrecognized"
-      ]
-    },
-    {
-      "id": "sork_011",
-      "voice_command": "Fully from the room.",
       "expected_tool_calls": [
         {
           "name": "inventory",
@@ -155,6 +145,16 @@
       "tags": [
         "sork",
         "inspection"
+      ]
+    },
+    {
+      "id": "sork_011",
+      "voice_command": "Fully from the room.",
+      "expected_tool_calls": [],
+      "tags": [
+        "sork",
+        "edge_case",
+        "unrecognized"
       ]
     },
     {
@@ -350,11 +350,15 @@
     {
       "id": "sork_025",
       "voice_command": "MOVE EAST.",
-      "expected_tool_calls": [],
+      "expected_tool_calls": [
+        {
+          "name": "go_east",
+          "arguments": {}
+        }
+      ],
       "tags": [
         "sork",
-        "edge_case",
-        "unrecognized"
+        "navigation"
       ]
     },
     {
@@ -442,13 +446,15 @@
       "voice_command": "Pick up the welding torch.",
       "expected_tool_calls": [
         {
-          "name": "go_up",
-          "arguments": {}
+          "name": "take",
+          "arguments": {
+            "item": "welding torch"
+          }
         }
       ],
       "tags": [
         "sork",
-        "navigation"
+        "items"
       ]
     },
     {
@@ -458,7 +464,7 @@
         {
           "name": "take",
           "arguments": {
-            "item": "welding"
+            "item": "welding torch"
           }
         }
       ],
@@ -474,7 +480,7 @@
         {
           "name": "drop",
           "arguments": {
-            "item": "welding"
+            "item": "welding torch"
           }
         }
       ],
@@ -548,10 +554,8 @@
       "voice_command": "room.",
       "expected_tool_calls": [
         {
-          "name": "examine",
-          "arguments": {
-            "target": "room"
-          }
+          "name": "look",
+          "arguments": {}
         }
       ],
       "tags": [
@@ -612,7 +616,83 @@
         "sork",
         "navigation"
       ]
+    },
+    {
+      "id": "sork_044",
+      "voice_command": "Go south.",
+      "expected_tool_calls": [
+        {
+          "name": "go_south",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_045",
+      "voice_command": "Climb down the ladder.",
+      "expected_tool_calls": [
+        {
+          "name": "go_down",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "navigation"
+      ]
+    },
+    {
+      "id": "sork_046",
+      "voice_command": "Use the keycard on the door.",
+      "expected_tool_calls": [
+        {
+          "name": "use",
+          "arguments": {
+            "item": "keycard",
+            "target": "door"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "items"
+      ]
+    },
+    {
+      "id": "sork_047",
+      "voice_command": "Attack the alien with the welding torch.",
+      "expected_tool_calls": [
+        {
+          "name": "attack",
+          "arguments": {
+            "target": "alien",
+            "weapon": "welding torch"
+          }
+        }
+      ],
+      "tags": [
+        "sork",
+        "combat"
+      ]
+    },
+    {
+      "id": "sork_048",
+      "voice_command": "Run away!",
+      "expected_tool_calls": [
+        {
+          "name": "flee",
+          "arguments": {}
+        }
+      ],
+      "tags": [
+        "sork",
+        "combat"
+      ]
     }
   ],
-  "description": "Voice command test suite generated from Sork gameplay logs"
+  "description": "Voice command test suite generated from Sork gameplay logs. Conventions: (1) bare item utterances with no verb (e.g. 'the pocket knife.', 'The oxygen tank.') map to `take` with that item — text-adventure default. (2) Bare 'room' utterances ('the room.', 'room.', 'of the room.') map to `look` (room overview), not `examine`. (3) Direction utterances are case-insensitive: 'east', 'East.', 'MOVE EAST.' all fire the corresponding go_* tool. (4) ASR-garbled or non-command utterances expect `[]` (unrecognized) rather than guessing a tool."
 }

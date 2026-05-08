@@ -92,7 +92,7 @@ class TestSuiteConfig(BaseModel):
     base_path: Path = Field(default=Path("tests/test_data"), description="Base path for test data")
     example_suite: str = Field(default="example_test_suite.json", description="Example test suite filename")
     anki_suite: str = Field(default="anki_large_toolset_suite.json", description="Anki test suite filename")
-    text_suite: str = Field(default="comprehensive_text_suite.json", description="Text evaluation suite filename")
+    text_suite: str = Field(default="letter_counting_suite.json", description="Text evaluation suite filename. Override with --test-suite to run other text suites (e.g. theory_of_mind_suite.json).")
 
     @property
     def example_suite_path(self) -> Path:

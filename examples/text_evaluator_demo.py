@@ -99,7 +99,7 @@ def main():
     )
     parser.add_argument(
         "--suite-path",
-        default="tests/test_data/comprehensive_text_suite.json",
+        default="tests/test_data/letter_counting_suite.json",
         help="Path to save/load test suite"
     )
     

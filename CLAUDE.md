@@ -31,7 +31,8 @@ Evaluate models running on a local llama-server instance.
 python eval_server.py --port 8080                    # Default: run all tests
 python eval_server.py --server-url http://localhost:8080 --mode suite
 python eval_server.py --port 8080 --mode anki --debug
-python eval_server.py --port 8080 --mode text --test-suite tests/test_data/comprehensive_text_suite.json
+python eval_server.py --port 8080 --mode text                                                          # Defaults to letter_counting_suite.json
+python eval_server.py --port 8080 --mode text --test-suite tests/test_data/theory_of_mind_suite.json   # Other text suite
 ```
 
 | Argument | Default | Description |
@@ -157,7 +158,6 @@ sledge-eval/
 │   └── test_data/           # Test data files
 │       ├── example_test_suite.json
 │       ├── anki_large_toolset_suite.json
-│       ├── comprehensive_text_suite.json
 │       ├── latency_benchmark_suite.json
 │       ├── letter_counting_suite.json
 │       └── theory_of_mind_suite.json

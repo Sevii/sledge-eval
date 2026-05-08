@@ -114,3 +114,15 @@ class GeminiRunner(EvaluationRunner):
             except ImportError:
                 return None
         return self._text_evaluator
+
+    def get_evaluator_with_prompt(self, system_prompt: str):
+        """Get an evaluator configured with a specific system prompt."""
+        from ..gemini_evaluator import GeminiEvaluator
+
+        return GeminiEvaluator(
+            api_key=self.api_key,
+            model=self.model,
+            timeout=self.timeout,
+            debug=self.debug,
+            system_prompt=system_prompt,
+        )

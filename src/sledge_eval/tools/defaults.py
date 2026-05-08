@@ -409,6 +409,24 @@ ANKI_TOOLS: List[Dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "guiDeckOverview",
+            "description": "Open the deck overview screen in the Anki GUI for a specific deck. Shows due/new/learning counts and lets the user start studying.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the deck to show the overview for",
+                        "minLength": 1
+                    }
+                },
+                "required": ["name"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "modelFieldNames",
             "description": "Get the field names for a specific note type (model). Use this to know what fields are required when creating notes of this type.",
             "parameters": {
@@ -434,6 +452,6 @@ def get_anki_tools() -> List[Dict[str, Any]]:
     Returns a copy to prevent accidental modification.
 
     Returns:
-        List of 13 Anki tool definitions in OpenAI format
+        List of 14 Anki tool definitions in OpenAI format
     """
     return copy.deepcopy(ANKI_TOOLS)

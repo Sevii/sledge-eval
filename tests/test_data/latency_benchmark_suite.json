@@ -51,7 +51,7 @@
       "expected_tool_calls": [
         {
           "name": "set_temperature",
-          "arguments": {"temperature": 72, "unit": "fahrenheit"}
+          "arguments": {"temperature": 72}
         }
       ],
       "description": "Baseline: Temperature control (~18 output tokens)",

@@ -223,6 +223,103 @@ class EvaluationReport(BaseModel):
         return renderer.render(self)
 
 
+class PromptDefinition(BaseModel):
+    """Represents a single prompt to test."""
+
+    id: str = Field(..., description="Unique identifier for the prompt")
+    name: str = Field(..., description="Human-readable name for the prompt")
+    system_prompt: str = Field(..., description="The system prompt text")
+
+
+class PromptsFile(BaseModel):
+    """A collection of prompts to compare."""
+
+    name: str = Field(..., description="Name of the prompt comparison")
+    description: Optional[str] = Field(None, description="Description of the comparison")
+    prompts: List[PromptDefinition] = Field(
+        ..., description="List of prompts to test"
+    )
+
+
+class PromptComparisonResult(BaseModel):
+    """Results for one prompt across all tests."""
+
+    prompt_id: str
+    prompt_name: str
+    system_prompt: str
+    total_tests: int
+    passed_tests: int
+    failed_tests: int
+    pass_rate: float = Field(description="Percentage of tests passed (0-100)")
+    total_time_ms: float
+    avg_time_ms: float
+    test_results: List[EvaluationResult]
+
+
+class PromptComparisonReport(BaseModel):
+    """Full comparison report across all prompts."""
+
+    # Metadata
+    timestamp: datetime = Field(default_factory=datetime.now)
+    model_name: str
+    server_url: Optional[str] = None
+    hosting_provider: Optional[str] = None
+    test_suite_name: Optional[str] = None
+    prompts_file_name: Optional[str] = None
+
+    # Results
+    prompt_results: List[PromptComparisonResult]
+    best_prompt_id: Optional[str] = None
+    best_prompt_name: Optional[str] = None
+
+    # Variable results (tests that passed for some prompts but failed for others)
+    variable_test_ids: List[str] = Field(default_factory=list)
+
+    @property
+    def display_name(self) -> str:
+        """Get a clean display name for the model."""
+        name = self.model_name.strip('"').strip("'")
+        if name.endswith('.gguf') and '/' in name:
+            return Path(name).stem
+        return name
+
+    def save_to_file(self, base_path: Path):
+        """Save comparison report to JSON and markdown files."""
+        # Clean model name for filesystem
+        model_name = self.model_name.strip('"').strip("'")
+        if model_name.endswith('.gguf') and '/' in model_name:
+            model_name = Path(model_name).stem
+
+        clean_model_name = (model_name
+                          .replace("/", "_")
+                          .replace(":", "_")
+                          .replace('"', "")
+                          .replace("'", "")
+                          .replace(" ", "_"))
+        model_dir = base_path / "reports" / clean_model_name
+        model_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create filenames with timestamp
+        timestamp_str = self.timestamp.strftime("%Y%m%d_%H%M%S")
+        json_filename = f"prompt_comparison_{timestamp_str}.json"
+        md_filename = f"prompt_comparison_{timestamp_str}.md"
+        json_filepath = model_dir / json_filename
+        md_filepath = model_dir / md_filename
+
+        # Save JSON report
+        with open(json_filepath, 'w') as f:
+            json.dump(self.model_dump(), f, indent=2, default=str)
+
+        # Generate and save markdown report
+        from .reporting.comparison_renderer import ComparisonRenderer
+        renderer = ComparisonRenderer()
+        markdown_content = renderer.render(self)
+        with open(md_filepath, 'w') as f:
+            f.write(markdown_content)
+
+        return {"json": json_filepath, "markdown": md_filepath}
+
+
 class Evaluator:
     """Evaluates model performance on voice command to tool call tasks."""
 

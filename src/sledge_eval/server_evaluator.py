@@ -19,6 +19,7 @@ class ServerEvaluator(OpenAICompatibleEvaluator):
         available_tools: Optional[List[Dict[str, Any]]] = None,
         timeout: int = 120,
         debug: bool = False,
+        system_prompt: Optional[str] = None,
     ):
         """
         Initialize the server evaluator.
@@ -28,6 +29,7 @@ class ServerEvaluator(OpenAICompatibleEvaluator):
             available_tools: List of tool definitions in OpenAI format
             timeout: Request timeout in seconds
             debug: Enable debug logging of requests and responses
+            system_prompt: Custom system prompt (uses default if not provided)
         """
         # Store for compatibility with existing code
         self.server_url = server_url.rstrip('/')
@@ -39,11 +41,16 @@ class ServerEvaluator(OpenAICompatibleEvaluator):
             debug=debug,
         )
 
-        super().__init__(
-            client_config=config,
-            tools=available_tools,
-            check_health=True,
-        )
+        # Build kwargs for parent, only including system_prompt if provided
+        parent_kwargs = {
+            "client_config": config,
+            "tools": available_tools,
+            "check_health": True,
+        }
+        if system_prompt is not None:
+            parent_kwargs["system_prompt"] = system_prompt
+
+        super().__init__(**parent_kwargs)
 
     def _get_default_tools(self) -> List[Dict[str, Any]]:
         """Get default tool definitions for common voice commands.

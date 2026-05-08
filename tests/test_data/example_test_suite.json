@@ -26,8 +26,7 @@
         {
           "name": "set_temperature",
           "arguments": {
-            "temperature": 72,
-            "unit": "fahrenheit"
+            "temperature": 72
           }
         }
       ]

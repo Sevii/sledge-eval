@@ -149,3 +149,12 @@ class ServerRunner(EvaluationRunner):
                 debug=self.debug,
             )
         return self._text_evaluator
+
+    def get_evaluator_with_prompt(self, system_prompt: str) -> ServerEvaluator:
+        """Get an evaluator configured with a specific system prompt."""
+        return ServerEvaluator(
+            server_url=self.server_url,
+            timeout=self.timeout,
+            debug=self.debug,
+            system_prompt=system_prompt,
+        )

@@ -138,3 +138,17 @@ class OpenRouterRunner(EvaluationRunner):
             except ImportError:
                 return None
         return self._text_evaluator
+
+    def get_evaluator_with_prompt(self, system_prompt: str):
+        """Get an evaluator configured with a specific system prompt."""
+        from ..openrouter_evaluator import OpenRouterEvaluator
+
+        return OpenRouterEvaluator(
+            model=self.model,
+            api_key=self.api_key,
+            timeout=self.timeout,
+            debug=self.debug,
+            site_url=self.site_url,
+            app_name=self.app_name,
+            system_prompt=system_prompt,
+        )

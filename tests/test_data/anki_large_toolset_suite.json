@@ -109,12 +109,10 @@
         },
         {
           "name": "notesInfo",
-          "arguments": {
-            "notes": []
-          }
+          "arguments": {}
         }
       ],
-      "description": "Complex workflow with dependent tool calls and advanced query",
+      "description": "Complex workflow with dependent tool calls and advanced query. notesInfo args are intentionally unconstrained because the model cannot know note IDs without first executing findNotes.",
       "tags": ["anki", "expert", "large_toolset", "complex_workflow", "dependent_calls"]
     },
     {
@@ -149,12 +147,11 @@
         {
           "name": "present_card",
           "arguments": {
-            "card_id": 0,
             "show_answer": false
           }
         }
       ],
-      "description": "Context-aware workflow understanding study session requirements",
+      "description": "Context-aware workflow understanding study session requirements. present_card.card_id is intentionally unconstrained because the model cannot know it without first executing get_due_cards.",
       "tags": ["anki", "context_aware", "large_toolset", "study_session", "workflow"]
     },
     {
@@ -182,6 +179,21 @@
       ],
       "description": "Handling ambiguous commands with reasonable defaults",
       "tags": ["anki", "ambiguous", "large_toolset", "default_behavior"]
+    },
+    {
+      "id": "anki_rate_001",
+      "voice_command": "Rate card 98765 as Good",
+      "expected_tool_calls": [
+        {
+          "name": "rate_card",
+          "arguments": {
+            "card_id": 98765,
+            "rating": 3
+          }
+        }
+      ],
+      "description": "Rate a card after review. Rating value mapping per tool docstring: 1=Again, 2=Hard, 3=Good, 4=Easy.",
+      "tags": ["anki", "intermediate", "large_toolset", "review_workflow", "rating"]
     },
     {
       "id": "anki_parameter_complex_001",

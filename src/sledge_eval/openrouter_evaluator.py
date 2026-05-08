@@ -23,6 +23,7 @@ class OpenRouterEvaluator(OpenAICompatibleEvaluator):
         debug: bool = False,
         site_url: Optional[str] = None,
         app_name: str = "sledge-eval",
+        system_prompt: Optional[str] = None,
     ):
         """
         Initialize the OpenRouter evaluator.
@@ -35,6 +36,7 @@ class OpenRouterEvaluator(OpenAICompatibleEvaluator):
             debug: Enable debug logging of requests and responses
             site_url: Optional site URL for OpenRouter ranking
             app_name: App name for OpenRouter ranking (default: sledge-eval)
+            system_prompt: Custom system prompt (uses default if not provided)
         """
         # Resolve API key
         resolved_key = resolve_api_key("OPENROUTER_API_KEY", api_key)
@@ -69,11 +71,16 @@ class OpenRouterEvaluator(OpenAICompatibleEvaluator):
             model=model,
         )
 
-        super().__init__(
-            client_config=config,
-            tools=available_tools,
-            check_health=False,  # OpenRouter doesn't need health checks
-        )
+        # Build kwargs for parent, only including system_prompt if provided
+        parent_kwargs = {
+            "client_config": config,
+            "tools": available_tools,
+            "check_health": False,  # OpenRouter doesn't need health checks
+        }
+        if system_prompt is not None:
+            parent_kwargs["system_prompt"] = system_prompt
+
+        super().__init__(**parent_kwargs)
 
     def check_api_key(self) -> bool:
         """Verify that the API key is valid by making a test request.

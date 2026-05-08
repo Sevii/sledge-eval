@@ -131,6 +131,13 @@ is_local_model() {
 find_model_in_cache() {
     local model=$1
 
+    # Strip leading "model/", "dataset/", or "space/" — these are repo-type
+    # prefixes that `hf cache ls` adds to its output but are not part of the
+    # actual HuggingFace ID.
+    model="${model#model/}"
+    model="${model#dataset/}"
+    model="${model#space/}"
+
     # Determine HuggingFace cache directory
     local hf_cache="${HF_HOME:-$HOME/.cache/huggingface}/hub"
 
@@ -168,8 +175,15 @@ find_model_in_cache() {
 
     local snapshot_path="$snapshots_dir/$latest_snapshot"
 
-    # Find a .gguf file in the snapshot directory
-    local gguf_file=$(find "$snapshot_path" -maxdepth 1 -name "*.gguf" -type f 2>/dev/null | head -1)
+    # Find a .gguf file in the snapshot directory.
+    # -L follows symlinks because HuggingFace cache stores snapshots as symlinks
+    # into ../../blobs/. Prefer files without "mmproj" in the name, since those
+    # are multimodal projector companions, not the actual model weights.
+    local gguf_file=$(find -L "$snapshot_path" -maxdepth 1 -name "*.gguf" -type f 2>/dev/null \
+        | grep -v mmproj | head -1)
+    if [ -z "$gguf_file" ]; then
+        gguf_file=$(find -L "$snapshot_path" -maxdepth 1 -name "*.gguf" -type f 2>/dev/null | head -1)
+    fi
 
     if [ -z "$gguf_file" ]; then
         return 1
@@ -184,6 +198,15 @@ find_model_in_cache() {
 start_server() {
     local model=$1
     local port=$2
+
+    # Strip repo-type prefixes that `hf cache ls` emits but llama-server does
+    # not expect. Local paths starting with "./" are not affected since this
+    # only matches "model/", "dataset/", "space/".
+    if ! is_local_model "$model"; then
+        model="${model#model/}"
+        model="${model#dataset/}"
+        model="${model#space/}"
+    fi
 
     print_info "Starting llama-server with model: $model"
     print_info "Server will be available on port: $port"

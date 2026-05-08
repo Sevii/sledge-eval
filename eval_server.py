@@ -61,6 +61,11 @@ def main():
         type=str,
         help="Override model name for report generation (will auto-detect from server if not provided)",
     )
+    parser.add_argument(
+        "--prompts-file",
+        type=str,
+        help="Path to prompts JSON file for prompt comparison mode",
+    )
 
     args = parser.parse_args()
 
@@ -89,10 +94,13 @@ def main():
 
         # Parse test file path if provided
         test_file = Path(args.test_suite) if args.test_suite else None
+        prompts_file = Path(args.prompts_file) if args.prompts_file else None
 
-        # Run the appropriate mode
-        success = False
-        if args.mode == "single":
+        # Run prompt comparison if prompts file is provided
+        if prompts_file:
+            success = runner.run_prompt_comparison(prompts_file, test_file)
+        # Otherwise run the appropriate mode
+        elif args.mode == "single":
             success = runner.run_single_test()
         elif args.mode == "suite":
             success = runner.run_test_suite(test_file)

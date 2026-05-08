@@ -15,6 +15,8 @@ from .text_evaluator import TextEvaluator
 class GeminiEvaluator(Evaluator):
     """Evaluator that uses Google Gemini API for tool calling."""
 
+    DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that interprets voice commands and calls appropriate functions."
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -22,6 +24,7 @@ class GeminiEvaluator(Evaluator):
         available_tools: Optional[List[Dict[str, Any]]] = None,
         timeout: int = 120,
         debug: bool = False,
+        system_prompt: Optional[str] = None,
     ):
         """
         Initialize the Gemini evaluator.
@@ -32,6 +35,7 @@ class GeminiEvaluator(Evaluator):
             available_tools: List of tool definitions in OpenAI format (will be converted)
             timeout: Request timeout in seconds
             debug: Enable debug logging of requests and responses
+            system_prompt: Custom system prompt (uses default if not provided)
         """
         # Get API key from parameter, env vars, or .env file
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("APIKey")
@@ -50,6 +54,7 @@ class GeminiEvaluator(Evaluator):
         self.available_tools = available_tools or self._get_default_tools()
         self.timeout = timeout
         self.debug = debug
+        self.system_prompt = system_prompt or self.DEFAULT_SYSTEM_PROMPT
 
         # Initialize the Gemini client
         self.client = genai.Client(api_key=self.api_key)
@@ -158,7 +163,6 @@ class GeminiEvaluator(Evaluator):
             gemini_tools = self._convert_to_gemini_tools(self.available_tools)
 
             # Build the prompt
-            system_prompt = "You are a helpful assistant that interprets voice commands and calls appropriate functions."
             user_message = test.voice_command
 
             if self.debug:
@@ -166,7 +170,7 @@ class GeminiEvaluator(Evaluator):
                 print("DEBUG: REQUEST TO GEMINI API")
                 print("=" * 60)
                 print(f"Model: {self.model}")
-                print(f"System: {system_prompt}")
+                print(f"System: {self.system_prompt}")
                 print(f"User: {user_message}")
                 print(f"Tools: {len(self.available_tools)} function(s)")
                 print("=" * 60)
@@ -177,7 +181,7 @@ class GeminiEvaluator(Evaluator):
                 contents=[
                     types.Content(
                         role="user",
-                        parts=[types.Part(text=f"{system_prompt}\n\nUser command: {user_message}")]
+                        parts=[types.Part(text=f"{self.system_prompt}\n\nUser command: {user_message}")]
                     )
                 ],
                 config=types.GenerateContentConfig(
